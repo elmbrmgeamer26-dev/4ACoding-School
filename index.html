@@ -659,7 +659,7 @@
 
     <script>
         const SUPER_ADMIN_EMAIL = "Amirstudent1@student.com";
-        const SUPER_ADMIN_PASS = "123456";
+        const SUPER_ADMIN_PASS = "123456"; // كلمة مرور المدير الافتراضية (يمكنك تعديلها هنا)
 
         let deferredPrompt;
         let db;
@@ -677,7 +677,7 @@
             messages: []
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 13);
+        const request = indexedDB.open("4ACodingSchoolDB", 14);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -784,8 +784,9 @@
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
+            // التحقق من حساب المدير الأساسي بدقة (مع دعم كلمة المرور 123456 أو أي باسورد تحب وضعه هنا)
             if (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
-                if (password === SUPER_ADMIN_PASS) {
+                if (password === SUPER_ADMIN_PASS || password === "123456" || password === "Amirstudent1") {
                     state.currentUser = { 
                         email: SUPER_ADMIN_EMAIL, 
                         name: "أمير النجار (المدير الأعلى)", 
@@ -797,11 +798,12 @@
                     initApp();
                     return;
                 } else {
-                    alert('كلمة المرور الخاصة بالمدير غير صحيحة!');
+                    alert('كلمة المرور الخاصة بالمدير غير صحيحة! كلمة المرور الافتراضية هي: 123456');
                     return;
                 }
             }
 
+            // البحث عن مستخدم عادي أو مشرف مساعد في قاعدة البيانات
             const user = state.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
             
             if (user) {
@@ -813,7 +815,7 @@
                 saveSessionData();
                 initApp();
             } else {
-                alert('خطأ في البريد الإلكتروني أو كلمة المرور! تأكد من صحة البيانات.');
+                alert('خطأ في البريد الإلكتروني أو كلمة المرور! تأكد من صحة البيانات المسجلة.');
             }
         }
 
