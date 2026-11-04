@@ -85,6 +85,17 @@
             color: #fff;
         }
 
+        .lang-select-header {
+            background: var(--bg-dark);
+            color: var(--accent);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+        }
+
         .btn-install-header {
             background-color: var(--success);
             color: #ffffff;
@@ -108,7 +119,17 @@
         .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+        }
+
+        .btn-edit-name {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
         }
 
         .btn-logout {
@@ -376,27 +397,18 @@
             background: rgba(56, 189, 248, 0.1);
             border: 1px solid var(--accent);
             color: var(--text-main);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
             text-decoration: none;
-            margin: 3px 0;
+            margin: 4px 0;
             transition: 0.2s;
+            font-weight: 500;
         }
 
         .file-link-item:hover {
             background: var(--accent);
             color: #000;
-        }
-
-        .lesson-img-preview {
-            max-width: 100%;
-            max-height: 120px;
-            border-radius: 6px;
-            margin-top: 5px;
-            object-fit: cover;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
         }
 
         .homework-box {
@@ -460,6 +472,14 @@
             margin-bottom: 4px;
             color: var(--text-muted);
             display: block;
+        }
+
+        .translated-tag {
+            font-size: 0.75rem;
+            color: #fbbf24;
+            font-style: italic;
+            display: block;
+            margin-top: 4px;
         }
 
         .chat-input-area {
@@ -581,32 +601,41 @@
                 <i class="fa-solid fa-code"></i> 4A Coding School <span id="deviceVersionTag" style="font-size: 0.75rem; color: var(--accent); font-weight: normal; margin-right: 5px;"></span>
             </div>
             <a href="https://wa.me/201021205814" target="_blank" class="support-badge">
-                <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i> دعم واتساب: 01021205814
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i> <span data-i18n="support">دعم واتساب: 01021205814</span>
             </a>
+            
+            <!-- قائمة اختيار اللغة -->
+            <select class="lang-select-header" id="appLanguageSelect" onchange="changeAppLanguage(this.value)">
+                <option value="ar">العربية 🇪🇬</option>
+                <option value="en">English 🇬🇧</option>
+                <option value="es">Español 🇪🇸</option>
+            </select>
+
             <button id="headerInstallBtn" class="btn-install-header hidden" onclick="triggerAppInstall()">
-                <i class="fa-solid fa-download"></i> تثبيت التطبيق
+                <i class="fa-solid fa-download"></i> <span data-i18n="installApp">تثبيت التطبيق</span>
             </button>
         </div>
 
         <div class="user-info hidden" id="headerUserInfo">
             <span id="userNameDisplay"></span>
-            <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+            <button class="btn-edit-name" id="editNameBtn" onclick="promptChangeName()"><i class="fa-solid fa-pen"></i> <span data-i18n="editName">تغيير الاسم</span></button>
+            <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="logout">خروج</span></button>
         </div>
     </header>
 
     <div class="auth-container" id="authSection">
         <div class="auth-card">
-            <h2>تسجيل الدخول الإجباري</h2>
+            <h2 data-i18n="loginTitle">تسجيل الدخول الإجباري</h2>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label>البريد الإلكتروني</label>
+                    <label data-i18n="emailLabel">البريد الإلكتروني</label>
                     <input type="email" id="loginEmail" required placeholder="example@student.com">
                 </div>
                 <div class="form-group">
-                    <label>كلمة المرور</label>
+                    <label data-i18n="passLabel">كلمة المرور</label>
                     <input type="password" id="loginPassword" required placeholder="******">
                 </div>
-                <button type="submit" class="btn-primary">دخول للمنصة</button>
+                <button type="submit" class="btn-primary" data-i18n="loginBtn">دخول للمنصة</button>
             </form>
         </div>
     </div>
@@ -615,38 +644,38 @@
         <div class="sidebar">
             <ul class="sidebar-menu">
                 <li id="menuVideos" class="active" onclick="switchTab('videos')">
-                    <i class="fa-solid fa-play"></i> الدروس والتطبيقات
+                    <i class="fa-solid fa-play"></i> <span data-i18n="menuVideos">الدروس والتطبيقات</span>
                 </li>
                 <li id="menuChat" class="permission-check" data-perm="chat" onclick="switchTab('chat')">
-                    <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle">تواصل مع المعلم</span>
+                    <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle" data-i18n="menuChat">تواصل مع المعلم</span>
                 </li>
                 <li id="menuAddVideo" class="admin-only hidden" onclick="switchTab('addVideo')">
-                    <i class="fa-solid fa-folder-plus"></i> رفع مجلد فيديوهات
+                    <i class="fa-solid fa-folder-plus"></i> <span data-i18n="menuAddVideo">رفع مجلد فيديوهات</span>
                 </li>
                 <li id="menuAddAttachments" class="admin-only hidden" onclick="switchTab('addAttachments')">
-                    <i class="fa-solid fa-paperclip"></i> إضافة ملحقات للسيشنات
+                    <i class="fa-solid fa-paperclip"></i> <span data-i18n="menuAddAttachments">إضافة ملحقات للسيشنات</span>
                 </li>
                 <li id="menuHomeworks" class="admin-only hidden" onclick="switchTab('homeworks')">
-                    <i class="fa-solid fa-clipboard-check"></i> متابعة واجبات الطلاب
+                    <i class="fa-solid fa-clipboard-check"></i> <span data-i18n="menuHomeworks">متابعة واجبات الطلاب</span>
                 </li>
                 <li id="menuCompletions" class="admin-only hidden" onclick="switchTab('completions')">
-                    <i class="fa-solid fa-trophy"></i> إشعارات إنهاء الكورسات
+                    <i class="fa-solid fa-trophy"></i> <span data-i18n="menuCompletions">إشعارات إنهاء الكورسات</span>
                 </li>
                 <li id="menuGroups" class="admin-only hidden" onclick="switchTab('groups')">
-                    <i class="fa-solid fa-layer-group"></i> إدارة المجموعات
+                    <i class="fa-solid fa-layer-group"></i> <span data-i18n="menuGroups">إدارة المجموعات</span>
                 </li>
                 <li id="menuStudents" class="admin-only hidden" onclick="switchTab('students')">
-                    <i class="fa-solid fa-users"></i> إدارة المستخدمين
+                    <i class="fa-solid fa-users"></i> <span data-i18n="menuStudents">إدارة المستخدمين</span>
                 </li>
             </ul>
         </div>
 
         <div class="content">
             <div id="tabVideos">
-                <h2><i class="fa-solid fa-video"></i> المكتبة التعليمية</h2>
+                <h2><i class="fa-solid fa-video"></i> <span data-i18n="libraryTitle">المكتبة التعليمية</span></h2>
                 
                 <div id="softwareBarContainer" class="software-links-bar hidden">
-                    <span><i class="fa-solid fa-laptop-code"></i> البرامج المتاحة لمستواك:</span>
+                    <span><i class="fa-solid fa-laptop-code"></i> <span data-i18n="softwareAvailable">البرامج المتاحة لمستواك:</span></span>
                     <div id="softwareLinksList" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
                 </div>
 
@@ -655,10 +684,10 @@
             </div>
 
             <div id="tabChat" class="hidden">
-                <h2 id="chatHeaderTitle"><i class="fa-solid fa-comments"></i> المحادثة المباشرة</h2>
+                <h2 id="chatHeaderTitle"><i class="fa-solid fa-comments"></i> <span data-i18n="chatTitle">المحادثة المباشرة</span></h2>
                 
                 <div id="adminChatSelector" class="hidden" style="margin-bottom: 15px;">
-                    <label style="color:var(--text-muted); font-size:0.9rem; display:block; margin-bottom:5px;">اختر الطالب لمحادثته:</label>
+                    <label style="color:var(--text-muted); font-size:0.9rem; display:block; margin-bottom:5px;" data-i18n="selectStudentChat">اختر الطالب لمحادثته:</label>
                     <select id="chatStudentSelect" onchange="changeActiveChatStudent()" style="max-width: 300px; padding: 10px; background:var(--card-bg); color:white; border:1px solid var(--border-color); border-radius:6px;"></select>
                 </div>
 
@@ -666,60 +695,58 @@
                     <div class="chat-messages" id="chatMessagesBox"></div>
                     <div class="chat-input-area">
                         <input type="text" id="chatInputText" placeholder="اكتب رسالتك هنا..." onkeypress="handleChatKeyPress(event)">
-                        <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i> إرسال</button>
+                        <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i> <span data-i18n="send">إرسال</span></button>
                     </div>
                 </div>
             </div>
 
-            <!-- رفع مجلد فيديوهات شامل -->
             <div id="tabAddVideo" class="hidden">
-                <h2><i class="fa-solid fa-cloud-arrow-up"></i> رفع مجلد فيديوهات كامل (Upload All Videos)</h2>
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="uploadFolderTitle">رفع مجلد فيديوهات كامل (Upload All Videos)</span></h2>
                 <div style="max-width: 600px; margin-top: 20px;">
                     <form onsubmit="handleAddVideoFolder(event)">
                         <div class="form-group">
-                            <label>اسم المجلد أو القسم (Blocks أو Python)</label>
+                            <label data-i18n="folderNameLabel">اسم المجلد أو القسم (Blocks أو Python)</label>
                             <input type="text" id="videoFolder" required placeholder="مثال: Blocks أو Python">
                         </div>
                         <div class="form-group">
-                            <label>اختر مجلد الفيديوهات الكامل من جهازك (سيتم رفع كل الفيديوهات بداخله دفعة واحدة):</label>
+                            <label data-i18n="selectFolderFilesLabel">اختر مجلد الفيديوهات الكامل من جهازك (سيتم رفع كل الفيديوهات بداخله دفعة واحدة):</label>
                             <input type="file" id="videoFolderFiles" accept="video/*" webkitdirectory directory multiple required style="color:#fff;">
                         </div>
-                        <button type="submit" class="btn-primary">رفع وحفظ كافة الفيديوهات</button>
+                        <button type="submit" class="btn-primary" data-i18n="uploadAllBtn">رفع وحفظ كافة الفيديوهات</button>
                     </form>
                 </div>
             </div>
 
-            <!-- قسم إضافة الملحقات (PowerPoint وصور) للسيشنات -->
             <div id="tabAddAttachments" class="hidden">
-                <h2><i class="fa-solid fa-file-circle-plus"></i> إضافة ملحقات (PowerPoint & صور) لسيشن معين</h2>
+                <h2><i class="fa-solid fa-file-circle-plus"></i> <span data-i18n="addAttachTitle">إضافة ملحقات (PowerPoint & صور) لسيشن معين</span></h2>
                 <div style="max-width: 600px; margin-top: 20px; background:var(--card-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
                     <form onsubmit="handleSaveAttachments(event)">
                         <div class="form-group">
-                            <label>اختر الدرس / السيشن:</label>
+                            <label data-i18n="chooseLesson">اختر الدرس / السيشن:</label>
                             <select id="targetVideoSelect" required style="background:var(--bg-dark); color:white; padding:12px; border-radius:6px; border:1px solid var(--border-color); width:100%;"></select>
                         </div>
                         <div class="form-group">
-                            <label>ملفات PowerPoint أو PDF:</label>
+                            <label data-i18n="pptFilesLabel">ملفات PowerPoint أو PDF:</label>
                             <input type="file" id="attachPptFiles" accept=".ppt, .pptx, .pdf" multiple style="font-size:0.85rem; color:#fff;">
                         </div>
                         <div class="form-group">
-                            <label>صور توضيحية:</label>
+                            <label data-i18n="imageFilesLabel">صور توضيحية:</label>
                             <input type="file" id="attachImgFiles" accept="image/*" multiple style="font-size:0.85rem; color:#fff;">
                         </div>
-                        <button type="submit" class="btn-primary">حفظ الملحقات لهذا السيشن</button>
+                        <button type="submit" class="btn-primary" data-i18n="saveAttachBtn">حفظ الملحقات لهذا السيشن</button>
                     </form>
                 </div>
             </div>
 
             <div id="tabHomeworks" class="hidden">
-                <h2><i class="fa-solid fa-clipboard-list"></i> الواجبات المرفوعة من الطلاب</h2>
+                <h2><i class="fa-solid fa-clipboard-list"></i> <span data-i18n="homeworksTitle">الواجبات المرفوعة من الطلاب</span></h2>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>اسم الطالب</th>
-                            <th>الدرس</th>
-                            <th>ملف الواجب</th>
-                            <th>وقت الإرسال</th>
+                            <th data-i18n="thStudentName">اسم الطالب</th>
+                            <th data-i18n="thLesson">الدرس</th>
+                            <th data-i18n="thHwFile">ملف الواجب</th>
+                            <th data-i18n="thTime">وقت الإرسال</th>
                         </tr>
                     </thead>
                     <tbody id="homeworksTableBody"></tbody>
@@ -727,14 +754,14 @@
             </div>
 
             <div id="tabCompletions" class="hidden">
-                <h2><i class="fa-solid fa-trophy"></i> إشعارات إنهاء الكورسات (Blocks / Python)</h2>
+                <h2><i class="fa-solid fa-trophy"></i> <span data-i18n="completionsTitle">إشعارات إنهاء الكورسات (Blocks / Python)</span></h2>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>اسم الطالب</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>الكورس المنتهي</th>
-                            <th>وقت الاكمال</th>
+                            <th data-i18n="thStudentName">اسم الطالب</th>
+                            <th data-i18n="thEmail">البريد الإلكتروني</th>
+                            <th data-i18n="thCourseFinished">الكورس المنتهي</th>
+                            <th data-i18n="thTime">وقت الاكمال</th>
                         </tr>
                     </thead>
                     <tbody id="completionsTableBody"></tbody>
@@ -742,43 +769,43 @@
             </div>
 
             <div id="tabGroups" class="hidden">
-                <h2><i class="fa-solid fa-layer-group"></i> إنشاء وإدارة مجموعات الطلاب</h2>
+                <h2><i class="fa-solid fa-layer-group"></i> <span data-i18n="groupsTitle">إنشاء وإدارة مجموعات الطلاب</span></h2>
                 <div style="max-width: 600px; margin-top: 20px; background:var(--card-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
                     <form onsubmit="handleCreateGroup(event)">
                         <div class="form-group">
-                            <label>اسم المجموعة</label>
+                            <label data-i18n="groupNameLabel">اسم المجموعة</label>
                             <input type="text" id="groupNameInput" required placeholder="مثال: مجموعة المتميزين في بايثون">
                         </div>
                         <div class="form-group">
-                            <label>اختر الطلاب للانضمام لهذه المجموعة:</label>
+                            <label data-i18n="selectStudentsForGroup">اختر الطلاب للانضمام لهذه المجموعة:</label>
                             <div class="checkbox-group" id="groupStudentsCheckboxes"></div>
                         </div>
-                        <button type="submit" class="btn-primary">حفظ وتشكيل المجموعة</button>
+                        <button type="submit" class="btn-primary" data-i18n="saveGroupBtn">حفظ وتشكيل المجموعة</button>
                     </form>
                 </div>
 
-                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-rectangle"></i> المجموعات الحالية</h2>
+                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-rectangle"></i> <span data-i18n="currentGroups">المجموعات الحالية</span></h2>
                 <div id="groupsListContainer" style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;"></div>
             </div>
 
             <div id="tabStudents" class="hidden">
-                <h2><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد</h2>
+                <h2><i class="fa-solid fa-user-plus"></i> <span data-i18n="addUserTitle">إضافة مستخدم جديد</span></h2>
                 <div style="max-width: 600px; margin-top: 20px;">
                     <form onsubmit="handleAddUser(event)">
                         <div class="form-group">
-                            <label>الاسم</label>
+                            <label data-i18n="nameLabel">الاسم</label>
                             <input type="text" id="userNameInput" required placeholder="اسم المستخدم">
                         </div>
                         <div class="form-group">
-                            <label>البريد الإلكتروني</label>
+                            <label data-i18n="emailLabel">البريد الإلكتروني</label>
                             <input type="email" id="userEmailInput" required placeholder="user@school.com">
                         </div>
                         <div class="form-group">
-                            <label>كلمة المرور</label>
+                            <label data-i18n="passLabel">كلمة المرور</label>
                             <input type="password" id="userPasswordInput" required placeholder="******">
                         </div>
                         <div class="form-group">
-                            <label>نوع الحساب:</label>
+                            <label data-i18n="roleLabel">نوع الحساب:</label>
                             <select id="userRoleSelect" onchange="toggleRoleOptions()">
                                 <option value="student">طالب (Student)</option>
                                 <option value="admin">مشرف مساعد (Sub-Admin)</option>
@@ -786,7 +813,7 @@
                         </div>
 
                         <div class="form-group hidden" id="adminPermissionsGroup">
-                            <label>حدد صلاحيات هذا المشرف:</label>
+                            <label data-i18n="subAdminPerms">حدد صلاحيات هذا المشرف:</label>
                             <div class="checkbox-group">
                                 <label class="checkbox-item"><input type="checkbox" value="videos" class="admin-perm-box" checked> رفع الفيديوهات</label>
                                 <label class="checkbox-item"><input type="checkbox" value="addAttachments" class="admin-perm-box" checked> إضافة الملحقات</label>
@@ -799,22 +826,22 @@
                         </div>
 
                         <div class="form-group" id="studentVideosGroup">
-                            <label>حدد الفيديوهات المسموح مشاهدتها للطالب:</label>
+                            <label data-i18n="allowedVideosLabel">حدد الفيديوهات المسموح مشاهدتها للطالب:</label>
                             <div class="checkbox-group" id="studentVideoPermissions"></div>
                         </div>
 
-                        <button type="submit" class="btn-primary">إنشاء الحساب وتعيين الصلاحيات</button>
+                        <button type="submit" class="btn-primary" data-i18n="createUserBtn">إنشاء الحساب وتعيين الصلاحيات</button>
                     </form>
                 </div>
 
-                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-gear"></i> قائمة المستخدمين المسجلين</h2>
+                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-gear"></i> <span data-i18n="registeredUsers">قائمة المستخدمين المسجلين</span></h2>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>الاسم</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>نوع الحساب</th>
-                            <th>إجراءات</th>
+                            <th data-i18n="thName">الاسم</th>
+                            <th data-i18n="thEmail">البريد الإلكتروني</th>
+                            <th data-i18n="thRole">نوع الحساب</th>
+                            <th data-i18n="thActions">إجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody"></tbody>
@@ -831,6 +858,234 @@
         let db;
         let currentFolderFilter = null;
         let activeChatEmail = null;
+        let currentLang = localStorage.getItem('4a_lang') || 'ar';
+
+        const i18n = {
+            ar: {
+                support: "دعم واتساب: 01021205814",
+                installApp: "تثبيت التطبيق",
+                editName: "تغيير الاسم",
+                logout: "خروج",
+                loginTitle: "تسجيل الدخول الإجباري",
+                emailLabel: "البريد الإلكتروني",
+                passLabel: "كلمة المرور",
+                loginBtn: "دخول للمنصة",
+                menuVideos: "الدروس والتطبيقات",
+                menuChat: "تواصل مع المعلم",
+                menuAddVideo: "رفع مجلد فيديوهات",
+                menuAddAttachments: "إضافة ملحقات للسيشنات",
+                menuHomeworks: "متابعة واجبات الطلاب",
+                menuCompletions: "إشعارات إنهاء الكورسات",
+                menuGroups: "إدارة المجموعات",
+                menuStudents: "إدارة المستخدمين",
+                libraryTitle: "المكتبة التعليمية",
+                softwareAvailable: "البرامج المتاحة لمستواك:",
+                chatTitle: "المحادثة المباشرة",
+                selectStudentChat: "اختر الطالب لمحادثته:",
+                send: "إرسال",
+                uploadFolderTitle: "رفع مجلد فيديوهات كامل (Upload All Videos)",
+                folderNameLabel: "اسم المجلد أو القسم (Blocks أو Python)",
+                selectFolderFilesLabel: "اختر مجلد الفيديوهات الكامل من جهازك (سيتم رفع كل الفيديوهات بداخله دفعة واحدة):",
+                uploadAllBtn: "رفع وحفظ كافة الفيديوهات",
+                addAttachTitle: "إضافة ملحقات (PowerPoint & صور) لسيشن معين",
+                chooseLesson: "اختر الدرس / السيشن:",
+                pptFilesLabel: "ملفات PowerPoint أو PDF:",
+                imageFilesLabel: "صور توضيحية:",
+                saveAttachBtn: "حفظ الملحقات لهذا السيشن",
+                homeworksTitle: "الواجبات المرفوعة من الطلاب",
+                thStudentName: "اسم الطالب",
+                thLesson: "الدرس",
+                thHwFile: "ملف الواجب",
+                thTime: "وقت الإرسال",
+                completionsTitle: "إشعارات إنهاء الكورسات (Blocks / Python)",
+                thEmail: "البريد الإلكتروني",
+                thCourseFinished: "الكورس المنتهي",
+                groupsTitle: "إنشاء وإدارة مجموعات الطلاب",
+                groupNameLabel: "اسم المجموعة",
+                selectStudentsForGroup: "اختر الطلاب للانضمام لهذه المجموعة:",
+                saveGroupBtn: "حفظ وتشكيل المجموعة",
+                currentGroups: "المجموعات الحالية",
+                addUserTitle: "إضافة مستخدم جديد",
+                nameLabel: "الاسم",
+                roleLabel: "نوع الحساب:",
+                subAdminPerms: "حدد صلاحيات هذا المشرف:",
+                allowedVideosLabel: "حدد الفيديوهات المسموح مشاهدتها للطالب:",
+                createUserBtn: "إنشاء الحساب وتعيين الصلاحيات",
+                registeredUsers: "قائمة المستخدمين المسجلين",
+                thName: "الاسم",
+                thRole: "نوع الحساب",
+                thActions: "إجراءات"
+            },
+            en: {
+                support: "WhatsApp Support: 01021205814",
+                installApp: "Install App",
+                editName: "Edit Name",
+                logout: "Logout",
+                loginTitle: "Required Login",
+                emailLabel: "Email Address",
+                passLabel: "Password",
+                loginBtn: "Login to Platform",
+                menuVideos: "Lessons & Apps",
+                menuChat: "Chat with Teacher",
+                menuAddVideo: "Upload Videos Folder",
+                menuAddAttachments: "Add Session Attachments",
+                menuHomeworks: "Student Homeworks",
+                menuCompletions: "Course Completion Alerts",
+                menuGroups: "Manage Groups",
+                menuStudents: "Manage Users",
+                libraryTitle: "Educational Library",
+                softwareAvailable: "Software available for your level:",
+                chatTitle: "Live Chat",
+                selectStudentChat: "Select Student to Chat:",
+                send: "Send",
+                uploadFolderTitle: "Upload Full Videos Folder",
+                folderNameLabel: "Folder/Section Name (Blocks or Python)",
+                selectFolderFilesLabel: "Select full video folder from your device:",
+                uploadAllBtn: "Upload & Save All Videos",
+                addAttachTitle: "Add Attachments (PowerPoint & Images)",
+                chooseLesson: "Select Lesson/Session:",
+                pptFilesLabel: "PowerPoint or PDF Files:",
+                imageFilesLabel: "Illustration Images:",
+                saveAttachBtn: "Save Attachments",
+                homeworksTitle: "Submitted Student Homeworks",
+                thStudentName: "Student Name",
+                thLesson: "Lesson",
+                thHwFile: "Homework File",
+                thTime: "Time Sent",
+                completionsTitle: "Course Completion Alerts",
+                thEmail: "Email",
+                thCourseFinished: "Finished Course",
+                groupsTitle: "Create & Manage Student Groups",
+                groupNameLabel: "Group Name",
+                selectStudentsForGroup: "Select Students to Join Group:",
+                saveGroupBtn: "Create Group",
+                currentGroups: "Current Groups",
+                addUserTitle: "Add New User",
+                nameLabel: "Name",
+                roleLabel: "Account Type:",
+                subAdminPerms: "Set Sub-Admin Permissions:",
+                allowedVideosLabel: "Set Allowed Videos for Student:",
+                createUserBtn: "Create Account",
+                registeredUsers: "Registered Users List",
+                thName: "Name",
+                thRole: "Account Type",
+                thActions: "Actions"
+            },
+            es: {
+                support: "Soporte WhatsApp: 01021205814",
+                installApp: "Instalar Aplicación",
+                editName: "Cambiar Nombre",
+                logout: "Cerrar Sesión",
+                loginTitle: "Inicio de Sesión Requerido",
+                emailLabel: "Correo Electrónico",
+                passLabel: "Contraseña",
+                loginBtn: "Entrar a la Plataforma",
+                menuVideos: "Lecciones y Aplicaciones",
+                menuChat: "Chatear con el Profesor",
+                menuAddVideo: "Subir Carpeta de Videos",
+                menuAddAttachments: "Agregar Adjuntos",
+                menuHomeworks: "Tareas de Estudiantes",
+                menuCompletions: "Alertas de Finalización",
+                menuGroups: "Gestionar Grupos",
+                menuStudents: "Gestionar Usuarios",
+                libraryTitle: "Biblioteca Educativa",
+                softwareAvailable: "Software disponible para tu nivel:",
+                chatTitle: "Chat en Vivo",
+                selectStudentChat: "Seleccionar Estudiante para Chatear:",
+                send: "Enviar",
+                uploadFolderTitle: "Subir Carpeta de Videos Completa",
+                folderNameLabel: "Nombre de Carpeta/Sección (Blocks o Python)",
+                selectFolderFilesLabel: "Seleccionar carpeta completa de video:",
+                uploadAllBtn: "Subir y Guardar Todo",
+                addAttachTitle: "Agregar Adjuntos (PowerPoint e Imágenes)",
+                chooseLesson: "Seleccionar Lección/Sesión:",
+                pptFilesLabel: "Archivos PowerPoint o PDF:",
+                imageFilesLabel: "Imágenes Ilustrativas:",
+                saveAttachBtn: "Guardar Adjuntos",
+                homeworksTitle: "Tareas Entregadas",
+                thStudentName: "Nombre del Estudiante",
+                thLesson: "Lección",
+                thHwFile: "Archivo de Tarea",
+                thTime: "Hora de Envío",
+                completionsTitle: "Alertas de Cursos Finalizados",
+                thEmail: "Correo",
+                thCourseFinished: "Curso Finalizado",
+                groupsTitle: "Crear y Gestionar Grupos de Estudiantes",
+                groupNameLabel: "Nombre del Grupo",
+                selectStudentsForGroup: "Seleccionar Estudiantes para el Grupo:",
+                saveGroupBtn: "Crear Grupo",
+                currentGroups: "Grupos Actuales",
+                addUserTitle: "Agregar Nuevo Usuario",
+                nameLabel: "Nombre",
+                roleLabel: "Tipo de Cuenta:",
+                subAdminPerms: "Establecer Permisos de Sub-Admin:",
+                allowedVideosLabel: "Establecer Videos Permitidos para Estudiante:",
+                createUserBtn: "Crear Cuenta",
+                registeredUsers: "Lista de Usuarios Registrados",
+                thName: "Nombre",
+                thRole: "Tipo de Cuenta",
+                thActions: "Acciones"
+            }
+        };
+
+        // قاموس ترجمة تلقائية بسيط من الإنجليزية إلى العربية للرسائل
+        const enToArabicDictionary = {
+            "hello": "مرحباً",
+            "hi": "أهلاً",
+            "welcome": "أهلاً بك",
+            "teacher": "يا معلم / يا أستاذ",
+            "i have a question": "عندي سؤال",
+            "i finished the lesson": "لقد أنهيت الدرس",
+            "i completed python": "لقد أتممت كورس بايثون",
+            "i completed blocks": "لقد أتممت كورس البلوكس",
+            "thank you": "شكراً لك",
+            "thanks": "شكراً",
+            "how are you": "كيف حالك",
+            "good morning": "صباح الخير",
+            "good evening": "مساء الخير",
+            "help": "مساعدة",
+            "done": "تم الإنجاز"
+        };
+
+        function translateEnToArabicText(text) {
+            let lower = text.trim().toLowerCase();
+            if (enToArabicDictionary[lower]) {
+                return enToArabicDictionary[lower];
+            }
+            // إذا كانت الرسالة إنجليزية تحتوي كلمات مفردة
+            let words = text.split(" ");
+            let translatedWords = words.map(w => {
+                let clean = w.toLowerCase().replace(/[^a-z]/g, "");
+                return enToArabicDictionary[clean] || w;
+            });
+            return translatedWords.join(" ");
+        }
+
+        function isEnglishText(text) {
+            const englishRegex = /[a-zA-Z]/;
+            return englishRegex.test(text);
+        }
+
+        function changeAppLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('4a_lang', lang);
+            document.getElementById('appLanguageSelect').value = lang;
+            
+            if (lang === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+                document.documentElement.setAttribute('lang', 'ar');
+            } else {
+                document.documentElement.setAttribute('dir', 'ltr');
+                document.documentElement.setAttribute('lang', lang);
+            }
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.textContent = i18n[lang][key];
+                }
+            });
+        }
 
         function detectDeviceAndApplyVersion() {
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
@@ -838,10 +1093,10 @@
             
             if (isMobile) {
                 document.body.classList.add('mobile-version');
-                if (versionTag) versionTag.textContent = "(نسخة الموبايل الثانية)";
+                if (versionTag) versionTag.textContent = "(Mobile Version)";
             } else {
                 document.body.classList.remove('mobile-version');
-                if (versionTag) versionTag.textContent = "(نسخة اللابتوب الأولى)";
+                if (versionTag) versionTag.textContent = "(Desktop Version)";
             }
         }
 
@@ -861,7 +1116,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 26);
+        const request = indexedDB.open("4ACodingSchoolDB", 29);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -894,7 +1149,7 @@
                     deferredPrompt = null;
                 });
             } else {
-                alert('تثبيت التطبيق متاح من قائمة المتصفح.');
+                alert('Install is available in browser menu.');
             }
         }
 
@@ -983,7 +1238,7 @@
             const tx = db.transaction("completions", "readonly");
             const getAll = tx.objectStore("completions").getAll();
             getAll.onsuccess = function() {
-                state.completions = getAll.result || [];
+                state.completions = (getAll.result || []).filter(c => !c.studentName.includes("ادم"));
                 renderCompletionsTable();
             };
         }
@@ -997,7 +1252,7 @@
                 if (password === SUPER_ADMIN_PASS) {
                     state.currentUser = { 
                         email: SUPER_ADMIN_EMAIL, 
-                        name: "أمير النجار (المدير الأعلى)", 
+                        name: "Amir Mohamed (Owner)", 
                         isSuperAdmin: true, 
                         isAdmin: true, 
                         permissions: ['videos', 'addAttachments', 'homeworks', 'chat', 'students', 'completions', 'groups'] 
@@ -1006,7 +1261,7 @@
                     initApp();
                     return;
                 } else {
-                    alert('كلمة المرور الخاصة بالمدير غير صحيحة!');
+                    alert('كلمة المرور غير صحيحة!');
                     return;
                 }
             }
@@ -1026,6 +1281,25 @@
             }
         }
 
+        function promptChangeName() {
+            if (!state.currentUser) return;
+            const newName = prompt("أدخل اسمك الجديد:", state.currentUser.name);
+            if (newName && newName.trim() !== "") {
+                state.currentUser.name = newName.trim();
+                saveSessionData();
+
+                if (!state.currentUser.isSuperAdmin) {
+                    const uIdx = state.users.findIndex(u => u.email === state.currentUser.email);
+                    if (uIdx !== -1) {
+                        state.users[uIdx].name = newName.trim();
+                        saveUsersData();
+                    }
+                }
+                document.getElementById('userNameDisplay').textContent = state.currentUser.name;
+                alert("تم تحديث الاسم بنجاح!");
+            }
+        }
+
         function logout() {
             state.currentUser = null;
             sessionStorage.removeItem('4a_activeSession');
@@ -1033,6 +1307,7 @@
         }
 
         function initApp() {
+            changeAppLanguage(currentLang);
             const activeSession = JSON.parse(sessionStorage.getItem('4a_activeSession'));
             if (activeSession && activeSession.email) {
                 state.currentUser = activeSession;
@@ -1087,10 +1362,8 @@
             });
 
             if (user.isAdmin) {
-                document.getElementById('chatMenuTitle').textContent = "رسائل الطلاب";
                 initAdminChatSelector();
             } else {
-                document.getElementById('chatMenuTitle').textContent = "تواصل مع المعلم";
                 activeChatEmail = user.email;
             }
 
@@ -1205,12 +1478,17 @@
                 return;
             }
 
+            let isEng = isEnglishText(text);
+            let translated = isEng ? translateEnToArabicText(text) : text;
+
             const msgObj = {
                 id: Date.now().toString() + "_" + Math.random(),
                 studentEmail: state.currentUser.isAdmin ? activeChatEmail : state.currentUser.email,
                 sender: state.currentUser.isAdmin ? 'admin' : 'student',
                 senderName: state.currentUser.name,
-                text: text,
+                originalText: text,
+                translatedText: translated,
+                isTranslated: isEng,
                 date: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
             };
 
@@ -1243,16 +1521,26 @@
             chatMessages.forEach(m => {
                 const bubble = document.createElement('div');
                 bubble.className = `chat-bubble ${m.sender === 'admin' ? 'admin' : 'student'}`;
+                
+                let textDisplay = m.originalText;
+                let translateNotice = '';
+
+                // ترجمة الرسائل من الإنجليزية إلى العربية حصراً لعند المشرف وعند الطالب
+                if (m.isTranslated) {
+                    textDisplay = m.translatedText;
+                    translateNotice = `<span class="translated-tag">(مترجم للعربية تلقائياً من الإنجليزية: "${m.originalText}")</span>`;
+                }
+
                 bubble.innerHTML = `
                     <span class="chat-sender">${m.senderName} - <small>${m.date}</small></span>
-                    <div>${m.text}</div>
+                    <div>${textDisplay}</div>
+                    ${translateNotice}
                 `;
                 box.appendChild(bubble);
             });
             box.scrollTop = box.scrollHeight;
         }
 
-        // رفع كافة فيديوهات المجلد دفعة واحدة
         function handleAddVideoFolder(e) {
             e.preventDefault();
             const folder = document.getElementById('videoFolder').value.trim() || "عام";
@@ -1445,7 +1733,7 @@
                 if (v.imageFiles && v.imageFiles.length > 0) {
                     imgHtml += `<div style="margin-top:6px;"><label><i class="fa-solid fa-images"></i> الصور التوضيحية:</label><div style="display:flex; gap:6px; flex-wrap:wrap;">`;
                     v.imageFiles.forEach(img => {
-                        imgHtml += `<img src="${img.data}" class="lesson-img-preview" onclick="window.open('${img.data}')" title="اضغط لتكبير الصورة">`;
+                        imgHtml += `<a href="${img.data}" download="${img.name || 'image.png'}" class="file-link-item"><i class="fa-solid fa-download"></i> ${img.name || 'تحميل الصورة'}</a>`;
                     });
                     imgHtml += `</div></div>`;
                 }
@@ -1554,10 +1842,10 @@
                 linksList.innerHTML = `<span style="font-size:0.85rem; color:var(--text-muted);">ابدأ مشاهدة السيشنات للنهاية لتظهر لك البرامج والأدوات المخصصة.</span>`;
             }
 
-            if (blocksCount >= 12) {
+            if (blocksCount >= 12 && totalBlocksVideos > 0 && blocksCount >= totalBlocksVideos) {
                 triggerCompletionNotice("Blocks");
             }
-            if (pythonCount >= 10) {
+            if (pythonCount >= 10 && totalPythonVideos > 0 && pythonCount >= totalPythonVideos) {
                 triggerCompletionNotice("Python");
             }
         }
@@ -1576,6 +1864,7 @@
                     date: new Date().toLocaleString('ar-EG')
                 };
                 saveCompletionToDB(compObj);
+                alert(`تهانينا الحارة! لقد أتممت كورس ${courseName} بنجاح وتم إرسال إشعار للمدير 🌟`);
             }
         }
 
@@ -1584,12 +1873,14 @@
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            if (state.completions.length === 0) {
+            const validCompletions = state.completions.filter(c => !c.studentName.includes("ادم"));
+
+            if (validCompletions.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">لا توجد إشعارات إنهاء حتى الآن.</td></tr>`;
                 return;
             }
 
-            state.completions.forEach(c => {
+            validCompletions.forEach(c => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${c.studentName}</td>
