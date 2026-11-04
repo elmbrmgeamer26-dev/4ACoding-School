@@ -226,6 +226,44 @@
             overflow-y: auto;
         }
 
+        .software-links-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .software-links-bar span {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .software-btn {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--accent);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .software-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
         .folder-filter-bar {
             display: flex;
             gap: 10px;
@@ -540,6 +578,9 @@
                 <li id="menuStudents" class="admin-only hidden" onclick="switchTab('students')">
                     <i class="fa-solid fa-users"></i> إدارة المستخدمين
                 </li>
+                <li id="menuCompletions" class="admin-only hidden" onclick="switchTab('completions')">
+                    <i class="fa-solid fa-trophy"></i> إشعارات إنهات الكورسات
+                </li>
             </ul>
         </div>
 
@@ -547,6 +588,13 @@
             <!-- قسم الفيديوهات -->
             <div id="tabVideos">
                 <h2><i class="fa-solid fa-video"></i> المكتبة التعليمية</h2>
+                
+                <!-- شريط البرامج الديناميكي حسب تقدم الطالب في الـ Blocks أو Python -->
+                <div id="softwareBarContainer" class="software-links-bar hidden">
+                    <span><i class="fa-solid fa-laptop-code"></i> البرامج المتاحة لمستواك:</span>
+                    <div id="softwareLinksList" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+                </div>
+
                 <div class="folder-filter-bar" id="folderFilterBar">
                     <div class="folder-chip active" onclick="filterFolder('all', this)">جميع الأقسام</div>
                 </div>
@@ -577,8 +625,8 @@
                 <div style="max-width: 600px; margin-top: 20px;">
                     <form onsubmit="handleAddVideo(event)">
                         <div class="form-group">
-                            <label>اسم المجلد أو القسم التعليمي</label>
-                            <input type="text" id="videoFolder" required placeholder="مثال: أساسيات Python أو تصميم HTML">
+                            <label>اسم المجلد أو القسم التعليمي (مثال: Blocks - Session 1 أو Python)</label>
+                            <input type="text" id="videoFolder" required placeholder="مثال: Blocks أو Python">
                         </div>
                         <div class="form-group">
                             <label>مصدر الفيديو</label>
@@ -590,8 +638,8 @@
 
                         <div id="youtubeInputGroup">
                             <div class="form-group">
-                                <label>عنوان الدرس</label>
-                                <input type="text" id="videoTitle" placeholder="مثال: الدوال في بايثون">
+                                <label>عنوان الدرس (يُفضل كتابة رقم السيشن بوضوح مثل: Session 3 أو Session 8)</label>
+                                <input type="text" id="videoTitle" placeholder="مثال: Session 3 - Game Design">
                             </div>
                             <div class="form-group">
                                 <label>وصف مختصر</label>
@@ -631,6 +679,22 @@
                 </table>
             </div>
 
+            <!-- قسم إشعارات انهاء الكورسات للطلاب -->
+            <div id="tabCompletions" class="hidden">
+                <h2><i class="fa-solid fa-trophy"></i> إشعارات إنهاء الكورسات من الطلاب (Blocks / Python)</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>اسم الطالب</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الكورس المنتهي</th>
+                            <th>وقت الاكمال</th>
+                        </tr>
+                    </thead>
+                    <tbody id="completionsTableBody"></tbody>
+                </table>
+            </div>
+
             <!-- قسم إدارة المستخدمين -->
             <div id="tabStudents" class="hidden">
                 <h2><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد (طالب أو مشرف مساعد)</h2>
@@ -664,6 +728,7 @@
                                 <label class="checkbox-item"><input type="checkbox" value="homeworks" class="admin-perm-box" checked> مراجعة ومتابعة الواجبات</label>
                                 <label class="checkbox-item"><input type="checkbox" value="chat" class="admin-perm-box" checked> الرد على محادثات الطلاب</label>
                                 <label class="checkbox-item"><input type="checkbox" value="students" class="admin-perm-box"> إدارة المستخدمين</label>
+                                <label class="checkbox-item"><input type="checkbox" value="completions" class="admin-perm-box" checked> متابعة إشعارات إنهاء الكورسات</label>
                             </div>
                         </div>
 
@@ -681,7 +746,7 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>الاسم</th>
+                            <th>اسم الطالب</th>
                             <th>البريد الإلكتروني</th>
                             <th>نوع الحساب</th>
                             <th>إجراءات</th>
@@ -702,7 +767,7 @@
         let currentFolderFilter = 'all';
         let activeChatEmail = null;
 
-        // استشعار نوع الجهاز (لابتوب أو موبايل) وتفعيل النسخة المناسبة تلقائياً
+        // استشعار نوع الجهاز (لابتوب أو موبايل)
         function detectDeviceAndApplyVersion() {
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
             const versionTag = document.getElementById('deviceVersionTag');
@@ -719,7 +784,6 @@
         window.addEventListener('resize', detectDeviceAndApplyVersion);
         detectDeviceAndApplyVersion();
 
-        // تصفير جلسة الدخول عند عمل Refresh لضمان طلب الإيميل والباسورد في كل مرة
         sessionStorage.removeItem('4a_activeSession');
 
         let state = {
@@ -727,21 +791,25 @@
             users: JSON.parse(localStorage.getItem('4a_users')) || [],
             videos: [],
             homeworks: [],
-            messages: []
+            messages: [],
+            completions: [],
+            watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 18);
+        const request = indexedDB.open("4ACodingSchoolDB", 19);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
             if (!db.objectStoreNames.contains("homeworks")) db.createObjectStore("homeworks", { keyPath: "id" });
             if (!db.objectStoreNames.contains("messages")) db.createObjectStore("messages", { keyPath: "id" });
+            if (!db.objectStoreNames.contains("completions")) db.createObjectStore("completions", { keyPath: "id" });
         };
         request.onsuccess = function(e) {
             db = e.target.result;
             loadVideosFromDB();
             loadHomeworksFromDB();
             loadMessagesFromDB();
+            loadCompletionsFromDB();
         };
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -761,7 +829,7 @@
                     deferredPrompt = null;
                 });
             } else {
-                alert('تثبيت التطبيق متاح من قائمة المتصفح (Add to Home Screen / Install App).');
+                alert('تثبيت التطبيق متاح من قائمة المتصفح.');
             }
         }
 
@@ -833,6 +901,23 @@
             };
         }
 
+        function saveCompletionToDB(compObj) {
+            if (!db) return;
+            const tx = db.transaction("completions", "readwrite");
+            tx.objectStore("completions").put(compObj);
+            tx.oncomplete = () => loadCompletionsFromDB();
+        }
+
+        function loadCompletionsFromDB() {
+            if (!db) return;
+            const tx = db.transaction("completions", "readonly");
+            const getAll = tx.objectStore("completions").getAll();
+            getAll.onsuccess = function() {
+                state.completions = getAll.result || [];
+                renderCompletionsTable();
+            };
+        }
+
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
@@ -845,7 +930,7 @@
                         name: "أمير النجار (المدير الأعلى)", 
                         isSuperAdmin: true, 
                         isAdmin: true, 
-                        permissions: ['videos', 'homeworks', 'chat', 'students'] 
+                        permissions: ['videos', 'homeworks', 'chat', 'students', 'completions'] 
                     };
                     saveSessionData();
                     initApp();
@@ -867,7 +952,7 @@
                 saveSessionData();
                 initApp();
             } else {
-                alert('خطأ في البريد الإلكتروني أو كلمة المرور! تأكد من صحة البيانات.');
+                alert('خطأ في البريد الإلكتروني أو كلمة المرور!');
             }
         }
 
@@ -891,10 +976,13 @@
                 loadVideosFromDB();
                 loadHomeworksFromDB();
                 loadMessagesFromDB();
+                loadCompletionsFromDB();
                 renderUsersTable();
             } else {
                 state.currentUser = null;
                 sessionStorage.removeItem('4a_activeSession');
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden'); // تم التعديل لعرض الشاشة المناسبة
                 document.getElementById('authSection').classList.remove('hidden');
                 document.getElementById('dashboardSection').classList.add('hidden');
                 document.getElementById('headerUserInfo').classList.add('hidden');
@@ -977,6 +1065,8 @@
             document.getElementById('tabAddVideo').classList.add('hidden');
             document.getElementById('tabHomeworks').classList.add('hidden');
             document.getElementById('tabStudents').classList.add('hidden');
+            const compTab = document.getElementById('tabCompletions');
+            if (compTab) compTab.classList.add('hidden');
 
             if (tab === 'videos') {
                 document.getElementById('tabVideos').classList.remove('hidden');
@@ -996,6 +1086,10 @@
                 document.getElementById('tabHomeworks').classList.remove('hidden');
                 document.getElementById('menuHomeworks').classList.add('active');
                 loadHomeworksFromDB();
+            } else if (tab === 'completions') {
+                if (compTab) compTab.classList.remove('hidden');
+                document.getElementById('menuCompletions').classList.add('active');
+                loadCompletionsFromDB();
             } else if (tab === 'students') {
                 document.getElementById('tabStudents').classList.remove('hidden');
                 document.getElementById('menuStudents').classList.add('active');
@@ -1162,7 +1256,6 @@
             const bar = document.getElementById('folderFilterBar');
             if (!bar || !state.currentUser) return;
 
-            // تحديد الفيديوهات المتاحة للمستخدم الحالي (لإظهار المجلدات الخاصة بالفيديوهات المتاحة له فقط)
             let userVideos = state.videos;
             if (!state.currentUser.isAdmin) {
                 const allowedIds = state.currentUser.allowedVideos || [];
@@ -1201,6 +1294,9 @@
                 availableVideos = availableVideos.filter(v => (v.folder || "عام") === currentFolderFilter);
             }
 
+            // فحص وتشغيل الشروط الذكية للبرامج (PictoBlocks, App Inventor, VS Code) وإنهاء الكورس
+            checkStudentProgressAndSoftware(availableVideos);
+
             if (availableVideos.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-muted);">لا توجد فيديوهات متاحة في هذا القسم حالياً.</p>';
                 return;
@@ -1222,7 +1318,13 @@
 
                 let studentHomeworkHtml = '';
                 if (!state.currentUser.isAdmin) {
+                    const isWatched = state.watchedVideos[state.currentUser.email] && state.watchedVideos[state.currentUser.email].includes(v.id);
                     studentHomeworkHtml = `
+                        <div style="margin-top: 10px;">
+                            <button onclick="markVideoAsWatched('${v.id}')" class="software-btn" style="background:${isWatched ? 'var(--success)' : 'transparent'}; color:${isWatched ? '#fff' : 'var(--accent)'}">
+                                <i class="fa-solid fa-check"></i> ${isWatched ? 'تم مشاهدة الدرس' : 'تأكيد مشاهدة الدرس'}
+                            </button>
+                        </div>
                         <div class="homework-box">
                             <label><i class="fa-solid fa-file-arrow-up"></i> تسليم الواجب (سكرين شوت أو تسجيل شاشة):</label>
                             <input type="file" accept="image/*,video/*" id="hw_file_${v.id}" onchange="submitHomework('${v.id}', '${v.title.replace(/'/g, "")}')" style="font-size: 0.8rem; color: #fff;">
@@ -1243,6 +1345,127 @@
                     </div>
                 `;
                 container.appendChild(card);
+            });
+        }
+
+        // دالة فحص تقدم الطالب وإظهار البرامج المناسبة أو إرسال إشعار الانتهاء
+        function checkStudentProgressAndSoftware(videos) {
+            if (!state.currentUser || state.currentUser.isAdmin) {
+                document.getElementById('softwareBarContainer').classList.add('hidden');
+                return;
+            }
+
+            const userEmail = state.currentUser.email;
+            const watched = state.watchedVideos[userEmail] || [];
+
+            let blocksCount = 0;
+            let pythonCount = 0;
+            let totalBlocksVideos = 0;
+            let totalPythonVideos = 0;
+
+            videos.forEach(v => {
+                const folderName = (v.folder || "").toLowerCase();
+                if (folderName.includes('blocks')) {
+                    totalBlocksVideos++;
+                    if (watched.includes(v.id)) blocksCount++;
+                } else if (folderName.includes('python')) {
+                    totalPythonVideos++;
+                    if (watched.includes(v.id)) pythonCount++;
+                }
+            });
+
+            // الشروط المطلوبة لروابط البرامج
+            const softwareContainer = document.getElementById('softwareBarContainer');
+            const linksList = document.getElementById('softwareLinksList');
+            softwareContainer.classList.remove('hidden');
+            linksList.innerHTML = '';
+
+            let hasSoftware = false;
+
+            // فحص قسم Blocks
+            // أول 6 سيشنات يظهر PictoBlocks فقط
+            if (blocksCount > 0 && blocksCount <= 6) {
+                linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
+                hasSoftware = true;
+            } 
+            // من 7 إلى 12 سيشن يظهر App Inventor و PictoBlocks
+            else if (blocksCount >= 7) {
+                linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
+                linksList.innerHTML += `<a href="https://appinventor.mit.edu/" target="_blank" class="software-btn"><i class="fa-solid fa-mobile-screen"></i> App Inventor</a>`;
+                hasSoftware = true;
+            }
+
+            // فحص قسم Python (أول 10 سيشنات يظهر الثلاثة برامج)
+            if (pythonCount > 0 && pythonCount <= 10) {
+                linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
+                linksList.innerHTML += `<a href="https://appinventor.mit.edu/" target="_blank" class="software-btn"><i class="fa-solid fa-mobile-screen"></i> App Inventor</a>`;
+                linksList.innerHTML += `<a href="https://code.visualstudio.com/" target="_blank" class="software-btn"><i class="fa-solid fa-code"></i> VS Code</a>`;
+                hasSoftware = true;
+            }
+
+            if (!hasSoftware) {
+                linksList.innerHTML = `<span style="font-size:0.85rem; color:var(--text-muted);">ابدأ مشاهدة الدروس لتظهر لك الأدوات والبرامج المخصصة.</span>`;
+            }
+
+            // التحقق من إنهاء كورسات Blocks أو Python بالكامل وإرسال إشعار للمدير
+            if (totalBlocksVideos > 0 && blocksCount >= totalBlocksVideos) {
+                triggerCompletionNotice("Blocks");
+            }
+            if (totalPythonVideos > 0 && pythonCount >= totalPythonVideos) {
+                triggerCompletionNotice("Python");
+            }
+        }
+
+        function markVideoAsWatched(videoId) {
+            const userEmail = state.currentUser.email;
+            if (!state.watchedVideos[userEmail]) {
+                state.watchedVideos[userEmail] = [];
+            }
+            if (!state.watchedVideos[userEmail].includes(videoId)) {
+                state.watchedVideos[userEmail].push(videoId);
+                localStorage.setItem('4a_watchedVideos', JSON.stringify(state.watchedVideos));
+                alert('ممتاز! تم تسجيل مشاهدة الدرس بنجاح.');
+                renderVideos();
+            }
+        }
+
+        function triggerCompletionNotice(courseName) {
+            const userEmail = state.currentUser.email;
+            const completionId = userEmail + "_" + courseName;
+            
+            // التأكد من عدم تكرار الإشعار لنفس الطالب ونفس الكورس
+            const exists = state.completions.some(c => c.id === completionId);
+            if (!exists) {
+                const compObj = {
+                    id: completionId,
+                    studentName: state.currentUser.name,
+                    studentEmail: userEmail,
+                    courseName: courseName,
+                    date: new Date().toLocaleString('ar-EG')
+                };
+                saveCompletionToDB(compObj);
+            }
+        }
+
+        function renderCompletionsTable() {
+            const tbody = document.getElementById('completionsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (state.completions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">لا توجد إشعارات إنهاء حتى الآن.</td></tr>`;
+                return;
+            }
+
+            state.completions.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.studentName}</td>
+                    <td>${c.studentEmail}</td>
+                    <td><span style="color:var(--accent); font-weight:bold;">أنهى كورس ${c.courseName} بالكامل 🌟</span></td>
+                    <td>${c.date}</td>
+                `;
+                tbody.appendChild(tr);
             });
         }
 
