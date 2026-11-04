@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4A Coding School</title>
     
-    <!-- الأيقونة الخاصة بالمتصفح (Favicon) -->
     <link rel="icon" type="image/png" href="https://img.icons8.com/color/96/source-code.png">
-    
-    <!-- ربط تطبيق الـ PWA مع الأيقونة لضمان ظهورها عند التثبيت -->
     <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%224A%20Coding%20School%22,%22short_name%22:%224A%20Coding%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#0f172a%22,%22theme_color%22:%22#0f172a%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/512/source-code.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -487,7 +483,6 @@
             object-fit: cover;
         }
 
-        /* تنسيق النسخة الثانية للموبايل */
         body.mobile-version .dashboard {
             flex-direction: column;
         }
@@ -541,7 +536,6 @@
         </div>
     </header>
 
-    <!-- شاشة تسجيل الدخول الإجبارية -->
     <div class="auth-container" id="authSection">
         <div class="auth-card">
             <h2>تسجيل الدخول الإجباري</h2>
@@ -559,7 +553,6 @@
         </div>
     </div>
 
-    <!-- لوحة التحكم الرئيسية -->
     <div class="dashboard hidden" id="dashboardSection">
         <div class="sidebar">
             <ul class="sidebar-menu">
@@ -575,21 +568,22 @@
                 <li id="menuHomeworks" class="admin-only hidden" onclick="switchTab('homeworks')">
                     <i class="fa-solid fa-clipboard-check"></i> متابعة واجبات الطلاب
                 </li>
+                <li id="menuCompletions" class="admin-only hidden" onclick="switchTab('completions')">
+                    <i class="fa-solid fa-trophy"></i> إشعارات إنهاء الكورسات
+                </li>
+                <li id="menuGroups" class="admin-only hidden" onclick="switchTab('groups')">
+                    <i class="fa-solid fa-layer-group"></i> إدارة المجموعات
+                </li>
                 <li id="menuStudents" class="admin-only hidden" onclick="switchTab('students')">
                     <i class="fa-solid fa-users"></i> إدارة المستخدمين
-                </li>
-                <li id="menuCompletions" class="admin-only hidden" onclick="switchTab('completions')">
-                    <i class="fa-solid fa-trophy"></i> إشعارات إنهات الكورسات
                 </li>
             </ul>
         </div>
 
         <div class="content">
-            <!-- قسم الفيديوهات -->
             <div id="tabVideos">
                 <h2><i class="fa-solid fa-video"></i> المكتبة التعليمية</h2>
                 
-                <!-- شريط البرامج الديناميكي حسب تقدم الطالب في الـ Blocks أو Python -->
                 <div id="softwareBarContainer" class="software-links-bar hidden">
                     <span><i class="fa-solid fa-laptop-code"></i> البرامج المتاحة لمستواك:</span>
                     <div id="softwareLinksList" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
@@ -601,7 +595,6 @@
                 <div class="video-grid" id="videoList"></div>
             </div>
 
-            <!-- قسم المحادثة المباشرة -->
             <div id="tabChat" class="hidden">
                 <h2 id="chatHeaderTitle"><i class="fa-solid fa-comments"></i> المحادثة المباشرة</h2>
                 
@@ -619,13 +612,12 @@
                 </div>
             </div>
 
-            <!-- قسم رفع الفيديوهات -->
             <div id="tabAddVideo" class="hidden">
                 <h2><i class="fa-solid fa-cloud-arrow-up"></i> رفع فيديو وتصنيفه في مجلد</h2>
                 <div style="max-width: 600px; margin-top: 20px;">
                     <form onsubmit="handleAddVideo(event)">
                         <div class="form-group">
-                            <label>اسم المجلد أو القسم التعليمي (مثال: Blocks - Session 1 أو Python)</label>
+                            <label>اسم المجلد أو القسم (Blocks أو Python)</label>
                             <input type="text" id="videoFolder" required placeholder="مثال: Blocks أو Python">
                         </div>
                         <div class="form-group">
@@ -638,8 +630,8 @@
 
                         <div id="youtubeInputGroup">
                             <div class="form-group">
-                                <label>عنوان الدرس (يُفضل كتابة رقم السيشن بوضوح مثل: Session 3 أو Session 8)</label>
-                                <input type="text" id="videoTitle" placeholder="مثال: Session 3 - Game Design">
+                                <label>عنوان الدرس</label>
+                                <input type="text" id="videoTitle" placeholder="مثال: Session 1">
                             </div>
                             <div class="form-group">
                                 <label>وصف مختصر</label>
@@ -663,7 +655,6 @@
                 </div>
             </div>
 
-            <!-- قسم الواجبات المرفوعة -->
             <div id="tabHomeworks" class="hidden">
                 <h2><i class="fa-solid fa-clipboard-list"></i> الواجبات المرفوعة من الطلاب</h2>
                 <table class="data-table">
@@ -671,7 +662,7 @@
                         <tr>
                             <th>اسم الطالب</th>
                             <th>الدرس</th>
-                            <th>ملف الواجب (سكرين شوت أو تسجيل شاشة)</th>
+                            <th>ملف الواجب</th>
                             <th>وقت الإرسال</th>
                         </tr>
                     </thead>
@@ -679,9 +670,8 @@
                 </table>
             </div>
 
-            <!-- قسم إشعارات انهاء الكورسات للطلاب -->
             <div id="tabCompletions" class="hidden">
-                <h2><i class="fa-solid fa-trophy"></i> إشعارات إنهاء الكورسات من الطلاب (Blocks / Python)</h2>
+                <h2><i class="fa-solid fa-trophy"></i> إشعارات إنهاء الكورسات (Blocks / Python)</h2>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -695,9 +685,29 @@
                 </table>
             </div>
 
-            <!-- قسم إدارة المستخدمين -->
+            <!-- قسم إدارة المجموعات الجديد -->
+            <div id="tabGroups" class="hidden">
+                <h2><i class="fa-solid lang-group fa-layer-group"></i> إنشاء وإدارة مجموعات الطلاب</h2>
+                <div style="max-width: 600px; margin-top: 20px; background:var(--card-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
+                    <form onsubmit="handleCreateGroup(event)">
+                        <div class="form-group">
+                            <label>اسم المجموعة</label>
+                            <input type="text" id="groupNameInput" required placeholder="مثال: مجموعة المتميزين في بايثون">
+                        </div>
+                        <div class="form-group">
+                            <label>اختر الطلاب للانضمام لهذه المجموعة:</label>
+                            <div class="checkbox-group" id="groupStudentsCheckboxes"></div>
+                        </div>
+                        <button type="submit" class="btn-primary">حفظ وتشكيل المجموعة</button>
+                    </form>
+                </div>
+
+                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-rectangle"></i> المجموعات الحالية</h2>
+                <div id="groupsListContainer" style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;"></div>
+            </div>
+
             <div id="tabStudents" class="hidden">
-                <h2><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد (طالب أو مشرف مساعد)</h2>
+                <h2><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد</h2>
                 <div style="max-width: 600px; margin-top: 20px;">
                     <form onsubmit="handleAddUser(event)">
                         <div class="form-group">
@@ -720,7 +730,6 @@
                             </select>
                         </div>
 
-                        <!-- صلاحيات المشرف المساعد -->
                         <div class="form-group hidden" id="adminPermissionsGroup">
                             <label>حدد صلاحيات هذا المشرف:</label>
                             <div class="checkbox-group">
@@ -729,10 +738,10 @@
                                 <label class="checkbox-item"><input type="checkbox" value="chat" class="admin-perm-box" checked> الرد على محادثات الطلاب</label>
                                 <label class="checkbox-item"><input type="checkbox" value="students" class="admin-perm-box"> إدارة المستخدمين</label>
                                 <label class="checkbox-item"><input type="checkbox" value="completions" class="admin-perm-box" checked> متابعة إشعارات إنهاء الكورسات</label>
+                                <label class="checkbox-item"><input type="checkbox" value="groups" class="admin-perm-box" checked> إدارة المجموعات</label>
                             </div>
                         </div>
 
-                        <!-- فيديوهات الطالب -->
                         <div class="form-group" id="studentVideosGroup">
                             <label>حدد الفيديوهات المسموح مشاهدتها للطالب:</label>
                             <div class="checkbox-group" id="studentVideoPermissions"></div>
@@ -746,7 +755,7 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>اسم الطالب</th>
+                            <th>الاسم</th>
                             <th>البريد الإلكتروني</th>
                             <th>نوع الحساب</th>
                             <th>إجراءات</th>
@@ -767,7 +776,6 @@
         let currentFolderFilter = 'all';
         let activeChatEmail = null;
 
-        // استشعار نوع الجهاز (لابتوب أو موبايل)
         function detectDeviceAndApplyVersion() {
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
             const versionTag = document.getElementById('deviceVersionTag');
@@ -793,10 +801,11 @@
             homeworks: [],
             messages: [],
             completions: [],
+            groups: JSON.parse(localStorage.getItem('4a_groups')) || [],
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 19);
+        const request = indexedDB.open("4ACodingSchoolDB", 21);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -835,6 +844,10 @@
 
         function saveUsersData() {
             localStorage.setItem('4a_users', JSON.stringify(state.users));
+        }
+
+        function saveGroupsData() {
+            localStorage.setItem('4a_groups', JSON.stringify(state.groups));
         }
 
         function saveSessionData() {
@@ -930,7 +943,7 @@
                         name: "أمير النجار (المدير الأعلى)", 
                         isSuperAdmin: true, 
                         isAdmin: true, 
-                        permissions: ['videos', 'homeworks', 'chat', 'students', 'completions'] 
+                        permissions: ['videos', 'homeworks', 'chat', 'students', 'completions', 'groups'] 
                     };
                     saveSessionData();
                     initApp();
@@ -978,11 +991,10 @@
                 loadMessagesFromDB();
                 loadCompletionsFromDB();
                 renderUsersTable();
+                renderGroupsManagement();
             } else {
                 state.currentUser = null;
                 sessionStorage.removeItem('4a_activeSession');
-                document.getElementById('authSection').classList.add('hidden');
-                document.getElementById('dashboardSection').classList.remove('hidden'); // تم التعديل لعرض الشاشة المناسبة
                 document.getElementById('authSection').classList.remove('hidden');
                 document.getElementById('dashboardSection').classList.add('hidden');
                 document.getElementById('headerUserInfo').classList.add('hidden');
@@ -1067,6 +1079,8 @@
             document.getElementById('tabStudents').classList.add('hidden');
             const compTab = document.getElementById('tabCompletions');
             if (compTab) compTab.classList.add('hidden');
+            const groupsTab = document.getElementById('tabGroups');
+            if (groupsTab) groupsTab.classList.add('hidden');
 
             if (tab === 'videos') {
                 document.getElementById('tabVideos').classList.remove('hidden');
@@ -1090,6 +1104,10 @@
                 if (compTab) compTab.classList.remove('hidden');
                 document.getElementById('menuCompletions').classList.add('active');
                 loadCompletionsFromDB();
+            } else if (tab === 'groups') {
+                if (groupsTab) groupsTab.classList.remove('hidden');
+                document.getElementById('menuGroups').classList.add('active');
+                renderGroupsManagement();
             } else if (tab === 'students') {
                 document.getElementById('tabStudents').classList.remove('hidden');
                 document.getElementById('menuStudents').classList.add('active');
@@ -1294,7 +1312,6 @@
                 availableVideos = availableVideos.filter(v => (v.folder || "عام") === currentFolderFilter);
             }
 
-            // فحص وتشغيل الشروط الذكية للبرامج (PictoBlocks, App Inventor, VS Code) وإنهاء الكورس
             checkStudentProgressAndSoftware(availableVideos);
 
             if (availableVideos.length === 0) {
@@ -1348,7 +1365,6 @@
             });
         }
 
-        // دالة فحص تقدم الطالب وإظهار البرامج المناسبة أو إرسال إشعار الانتهاء
         function checkStudentProgressAndSoftware(videos) {
             if (!state.currentUser || state.currentUser.isAdmin) {
                 document.getElementById('softwareBarContainer').classList.add('hidden');
@@ -1363,7 +1379,7 @@
             let totalBlocksVideos = 0;
             let totalPythonVideos = 0;
 
-            videos.forEach(v => {
+            state.videos.forEach(v => {
                 const folderName = (v.folder || "").toLowerCase();
                 if (folderName.includes('blocks')) {
                     totalBlocksVideos++;
@@ -1374,7 +1390,6 @@
                 }
             });
 
-            // الشروط المطلوبة لروابط البرامج
             const softwareContainer = document.getElementById('softwareBarContainer');
             const linksList = document.getElementById('softwareLinksList');
             softwareContainer.classList.remove('hidden');
@@ -1382,20 +1397,15 @@
 
             let hasSoftware = false;
 
-            // فحص قسم Blocks
-            // أول 6 سيشنات يظهر PictoBlocks فقط
             if (blocksCount > 0 && blocksCount <= 6) {
                 linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
                 hasSoftware = true;
-            } 
-            // من 7 إلى 12 سيشن يظهر App Inventor و PictoBlocks
-            else if (blocksCount >= 7) {
+            } else if (blocksCount >= 7) {
                 linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
                 linksList.innerHTML += `<a href="https://appinventor.mit.edu/" target="_blank" class="software-btn"><i class="fa-solid fa-mobile-screen"></i> App Inventor</a>`;
                 hasSoftware = true;
             }
 
-            // فحص قسم Python (أول 10 سيشنات يظهر الثلاثة برامج)
             if (pythonCount > 0 && pythonCount <= 10) {
                 linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
                 linksList.innerHTML += `<a href="https://appinventor.mit.edu/" target="_blank" class="software-btn"><i class="fa-solid fa-mobile-screen"></i> App Inventor</a>`;
@@ -1404,10 +1414,9 @@
             }
 
             if (!hasSoftware) {
-                linksList.innerHTML = `<span style="font-size:0.85rem; color:var(--text-muted);">ابدأ مشاهدة الدروس لتظهر لك الأدوات والبرامج المخصصة.</span>`;
+                linksList.innerHTML = `<span style="font-size:0.85rem; color:var(--text-muted);">ابدأ مشاهدة الدروس وتأكيد مشاهدتها لتظهر لك البرامج والأدوات المخصصة.</span>`;
             }
 
-            // التحقق من إنهاء كورسات Blocks أو Python بالكامل وإرسال إشعار للمدير
             if (totalBlocksVideos > 0 && blocksCount >= totalBlocksVideos) {
                 triggerCompletionNotice("Blocks");
             }
@@ -1433,7 +1442,6 @@
             const userEmail = state.currentUser.email;
             const completionId = userEmail + "_" + courseName;
             
-            // التأكد من عدم تكرار الإشعار لنفس الطالب ونفس الكورس
             const exists = state.completions.some(c => c.id === completionId);
             if (!exists) {
                 const compObj = {
@@ -1549,6 +1557,80 @@
             });
         }
 
+        function renderGroupsManagement() {
+            const container = document.getElementById('groupStudentsCheckboxes');
+            if (!container) return;
+            container.innerHTML = '';
+            const students = state.users.filter(u => u.role === 'student');
+            if (students.length === 0) {
+                container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">لا توجد طلاب مسجلين لإضافتهم في مجموعات.</span>';
+            } else {
+                students.forEach(s => {
+                    const item = document.createElement('label');
+                    item.className = 'checkbox-item';
+                    item.innerHTML = `<input type="checkbox" value="${s.email}" class="group-student-box"> <span>${s.name} (${s.email})</span>`;
+                    container.appendChild(item);
+                });
+            }
+
+            const listContainer = document.getElementById('groupsListContainer');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+            if (state.groups.length === 0) {
+                listContainer.innerHTML = '<p style="color:var(--text-muted);">لم يتم إنشاء أي مجموعات حتى الآن.</p>';
+                return;
+            }
+
+            state.groups.forEach((g, idx) => {
+                const card = document.createElement('div');
+                card.style.cssText = "background:var(--card-bg); border:1px solid var(--border-color); padding:15px; border-radius:8px;";
+                let studentsNames = g.students.map(email => {
+                    let st = state.users.find(u => u.email === email);
+                    return st ? st.name : email;
+                }).join(', ') || 'لا توجد طلاب في هذه المجموعة';
+
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="color:var(--accent); font-size:1.1rem;"><i class="fa-solid fa-users"></i> ${g.name}</h3>
+                        <button onclick="deleteGroup(${idx})" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem;">حذف المجموعة</button>
+                    </div>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;"><strong>الطلاب الأعضاء:</strong> ${studentsNames}</p>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function handleCreateGroup(e) {
+            e.preventDefault();
+            const groupName = document.getElementById('groupNameInput').value.trim();
+            const selectedStudents = [];
+            document.querySelectorAll('.group-student-box:checked').forEach(box => {
+                selectedStudents.push(box.value);
+            });
+
+            if (!groupName) {
+                alert('يرجى كتابة اسم المجموعة.');
+                return;
+            }
+
+            state.groups.push({
+                name: groupName,
+                students: selectedStudents
+            });
+            saveGroupsData();
+            alert('تم إنشاء وتشكيل المجموعة بنجاح!');
+            document.getElementById('groupNameInput').value = '';
+            renderGroupsManagement();
+        }
+
+        function deleteGroup(index) {
+            if (confirm('هل أنت متأكد من حذف هذه المجموعة؟')) {
+                state.groups.splice(index, 1);
+                saveGroupsData();
+                renderGroupsManagement();
+            }
+        }
+
         function handleAddUser(e) {
             e.preventDefault();
             const name = document.getElementById('userNameInput').value;
@@ -1591,6 +1673,7 @@
             document.getElementById('userPasswordInput').value = '';
             renderPermissionsList();
             renderUsersTable();
+            renderGroupsManagement();
             initAdminChatSelector();
         }
 
@@ -1617,6 +1700,7 @@
                 state.users.splice(index, 1);
                 saveUsersData();
                 renderUsersTable();
+                renderGroupsManagement();
                 initAdminChatSelector();
             }
         }
