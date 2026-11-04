@@ -341,6 +341,18 @@
             margin-bottom: 12px;
         }
 
+        .status-watched-badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
         .attached-files-box {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border-color);
@@ -635,9 +647,7 @@
                     <div id="softwareLinksList" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
                 </div>
 
-                <div class="folder-filter-bar" id="folderFilterBar">
-                    <div class="folder-chip active" onclick="filterFolder('all', this)">جميع الأقسام</div>
-                </div>
+                <div class="folder-filter-bar" id="folderFilterBar"></div>
                 <div class="video-grid" id="videoList"></div>
             </div>
 
@@ -658,7 +668,6 @@
                 </div>
             </div>
 
-            <!-- قسم رفع الفيديوهات مع ملفات الباوربوينت والصور -->
             <div id="tabAddVideo" class="hidden">
                 <h2><i class="fa-solid fa-cloud-arrow-up"></i> رفع فيديو مع ملحقات (PowerPoint وصور)</h2>
                 <div style="max-width: 600px; margin-top: 20px;">
@@ -697,12 +706,11 @@
                             </div>
                         </div>
 
-                        <!-- إرفاق ملفات الباوربوينت والصور -->
                         <div class="form-group" style="background: rgba(56, 189, 248, 0.05); padding: 15px; border-radius: 8px; border: 1px dashed var(--accent);">
                             <label style="color: var(--accent); font-weight: bold;"><i class="fa-solid fa-paperclip"></i> إرفاق ملحقات الدرس (PowerPoint & صور):</label>
                             
                             <div style="margin-top: 10px;">
-                                <label style="font-size: 0.85rem;">ملفات PowerPoint (أو ملفات أخرى ppt, pptx, pdf):</label>
+                                <label style="font-size: 0.85rem;">ملفات PowerPoint أو PDF:</label>
                                 <input type="file" id="lessonPptFiles" accept=".ppt, .pptx, .pdf" multiple style="font-size: 0.85rem; color:#fff;">
                             </div>
 
@@ -834,7 +842,7 @@
 
         let deferredPrompt;
         let db;
-        let currentFolderFilter = 'all';
+        let currentFolderFilter = null;
         let activeChatEmail = null;
 
         function detectDeviceAndApplyVersion() {
@@ -866,7 +874,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 22);
+        const request = indexedDB.open("4ACodingSchoolDB", 24);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -1262,7 +1270,6 @@
             }
         }
 
-        // قراءة الملفات المرفقة (باوربوينت وصور) وتحويلها لحفظها في القاعدة
         function handleAddVideo(e) {
             e.preventDefault();
             const folder = document.getElementById('videoFolder').value.trim() || "عام";
@@ -1374,7 +1381,13 @@
             }
 
             const folders = [...new Set(userVideos.map(v => v.folder || "عام"))];
-            let html = `<div class="folder-chip ${currentFolderFilter === 'all' ? 'active' : ''}" onclick="filterFolder('all', this)">جميع الأقسام</div>`;
+            
+            // إذا لم يتم تحديد قسم مسبقاً، اختر أول قسم متاح تلقائياً (إلغاء جميع الاقسام نهائياً)
+            if (!currentFolderFilter || !folders.includes(currentFolderFilter)) {
+                currentFolderFilter = folders.length > 0 ? folders[0] : null;
+            }
+
+            let html = '';
             folders.forEach(f => {
                 html += `<div class="folder-chip ${currentFolderFilter === f ? 'active' : ''}" onclick="filterFolder('${f}', this)">📁 ${f}</div>`;
             });
@@ -1401,11 +1414,11 @@
                 availableVideos = state.videos.filter(v => allowedIds.includes(v.id));
             }
 
-            if (currentFolderFilter !== 'all') {
+            if (currentFolderFilter) {
                 availableVideos = availableVideos.filter(v => (v.folder || "عام") === currentFolderFilter);
             }
 
-            checkStudentProgressAndSoftware(availableVideos);
+            checkStudentProgressAndSoftware();
 
             if (availableVideos.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-muted);">لا توجد فيديوهات متاحة في هذا القسم حالياً.</p>';
@@ -1418,15 +1431,14 @@
                 
                 let playerHtml = '';
                 if (v.type === 'youtube') {
-                    playerHtml = `<iframe src="${v.src}" allowfullscreen></iframe>`;
+                    playerHtml = `<iframe src="${v.src}?enablejsapi=1" allowfullscreen onended="markVideoAsWatchedAutomatically('${v.id}')"></iframe>`;
                 } else if (v.fileData) {
                     const videoBlobUrl = URL.createObjectURL(v.fileData);
-                    playerHtml = `<video src="${videoBlobUrl}" controls></video>`;
+                    playerHtml = `<video src="${videoBlobUrl}" controls onended="markVideoAsWatchedAutomatically('${v.id}')"></video>`;
                 } else {
                     playerHtml = `<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#ef4444; font-size:0.9rem;">تعذر تحميل الملف المحلي</div>`;
                 }
 
-                // عرض ملفات الباوربوينت المرفقة
                 let pptHtml = '';
                 if (v.pptFiles && v.pptFiles.length > 0) {
                     pptHtml += `<div style="margin-top:6px;"><label><i class="fa-solid fa-file-powerpoint"></i> ملفات العرض (PowerPoint / PDF):</label>`;
@@ -1436,7 +1448,6 @@
                     pptHtml += `</div>`;
                 }
 
-                // عرض الصور التوضيحية المرفقة
                 let imgHtml = '';
                 if (v.imageFiles && v.imageFiles.length > 0) {
                     imgHtml += `<div style="margin-top:6px;"><label><i class="fa-solid fa-images"></i> الصور التوضيحية:</label><div style="display:flex; gap:6px; flex-wrap:wrap;">`;
@@ -1451,15 +1462,16 @@
                     attachedBoxHtml = `<div class="attached-files-box">${pptHtml}${imgHtml}</div>`;
                 }
 
-                let studentHomeworkHtml = '';
+                let studentStatusHtml = '';
                 if (!state.currentUser.isAdmin) {
                     const isWatched = state.watchedVideos[state.currentUser.email] && state.watchedVideos[state.currentUser.email].includes(v.id);
-                    studentHomeworkHtml = `
-                        <div style="margin-top: 10px;">
-                            <button onclick="markVideoAsWatched('${v.id}')" class="software-btn" style="background:${isWatched ? 'var(--success)' : 'transparent'}; color:${isWatched ? '#fff' : 'var(--accent)'}">
-                                <i class="fa-solid fa-check"></i> ${isWatched ? 'تم مشاهدة الدرس' : 'تأكيد مشاهدة الدرس'}
-                            </button>
-                        </div>
+                    if (isWatched) {
+                        studentStatusHtml = `<div class="status-watched-badge"><i class="fa-solid fa-circle-check"></i> تم مشاهدة السيشن بالكامل بنجاح</div>`;
+                    } else {
+                        studentStatusHtml = `<div style="margin-top: 8px; font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-info-circle"></i> سيتم تسجيل المشاهدة تلقائياً عند إنهاء الفيديو بالكامل.</div>`;
+                    }
+
+                    studentStatusHtml += `
                         <div class="homework-box">
                             <label><i class="fa-solid fa-file-arrow-up"></i> تسليم الواجب (سكرين شوت أو تسجيل شاشة):</label>
                             <input type="file" accept="image/*,video/*" id="hw_file_${v.id}" onchange="submitHomework('${v.id}', '${v.title.replace(/'/g, "")}')" style="font-size: 0.8rem; color: #fff;">
@@ -1476,7 +1488,7 @@
                             <div class="video-desc">${v.desc || ''}</div>
                         </div>
                         ${attachedBoxHtml}
-                        ${studentHomeworkHtml}
+                        ${studentStatusHtml}
                         ${state.currentUser.isAdmin ? `<button onclick="deleteVideo('${v.id}')" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem; margin-top:10px;">حذف الدرس</button>` : ''}
                     </div>
                 `;
@@ -1484,7 +1496,20 @@
             });
         }
 
-        function checkStudentProgressAndSoftware(videos) {
+        function markVideoAsWatchedAutomatically(videoId) {
+            if (!state.currentUser || state.currentUser.isAdmin) return;
+            const userEmail = state.currentUser.email;
+            if (!state.watchedVideos[userEmail]) {
+                state.watchedVideos[userEmail] = [];
+            }
+            if (!state.watchedVideos[userEmail].includes(videoId)) {
+                state.watchedVideos[userEmail].push(videoId);
+                localStorage.setItem('4a_watchedVideos', JSON.stringify(state.watchedVideos));
+                renderVideos();
+            }
+        }
+
+        function checkStudentProgressAndSoftware() {
             if (!state.currentUser || state.currentUser.isAdmin) {
                 document.getElementById('softwareBarContainer').classList.add('hidden');
                 return;
@@ -1533,27 +1558,14 @@
             }
 
             if (!hasSoftware) {
-                linksList.innerHTML = `<span style="font-size:0.85rem; color:var(--text-muted);">ابدأ مشاهدة الدروس وتأكيد مشاهدتها لتظهر لك البرامج والأدوات المخصصة.</span>`;
+                linksList.innerHTML = `<span style="font-size:0.85rem; color:var(--text-muted);">ابدأ مشاهدة السيشنات للنهاية لتظهر لك البرامج والأدوات المخصصة.</span>`;
             }
 
-            if (totalBlocksVideos > 0 && blocksCount >= totalBlocksVideos) {
+            if (blocksCount >= 12) {
                 triggerCompletionNotice("Blocks");
             }
-            if (totalPythonVideos > 0 && pythonCount >= totalPythonVideos) {
+            if (pythonCount >= 10) {
                 triggerCompletionNotice("Python");
-            }
-        }
-
-        function markVideoAsWatched(videoId) {
-            const userEmail = state.currentUser.email;
-            if (!state.watchedVideos[userEmail]) {
-                state.watchedVideos[userEmail] = [];
-            }
-            if (!state.watchedVideos[userEmail].includes(videoId)) {
-                state.watchedVideos[userEmail].push(videoId);
-                localStorage.setItem('4a_watchedVideos', JSON.stringify(state.watchedVideos));
-                alert('ممتاز! تم تسجيل مشاهدة الدرس بنجاح.');
-                renderVideos();
             }
         }
 
@@ -1819,7 +1831,7 @@
                 state.users.splice(index, 1);
                 saveUsersData();
                 renderUsersTable();
-                    renderGroupsManagement();
+                renderGroupsManagement();
                 initAdminChatSelector();
             }
         }
