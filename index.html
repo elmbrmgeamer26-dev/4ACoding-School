@@ -470,7 +470,7 @@
     <!-- شاشة تسجيل الدخول الإجبارية -->
     <div class="auth-container" id="authSection">
         <div class="auth-card">
-            <h2>تسجيل الدخول</h2>
+            <h2>تسجيل الدخول الإجباري</h2>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>البريد الإلكتروني</label>
@@ -659,14 +659,29 @@
 
     <script>
         const SUPER_ADMIN_EMAIL = "Amirstudent1@student.com";
-        const SUPER_ADMIN_PASS = "123456789"; // كلمة مرور المدير الأساسية (يمكنك تغييرها)
+        const SUPER_ADMIN_PASS = "123456789"; // كلمة مرور المدير الأعلى (يمكنك تغييرها)
 
         let deferredPrompt;
         let db;
         let currentFolderFilter = 'all';
         let activeChatEmail = null;
 
-        const request = indexedDB.open("4ACodingSchoolDB", 11);
+        // إجبار تسجيل الخروج عند تحديث الصفحة أو الدخول للرابط من جديد
+        window.addEventListener('beforeunload', () => {
+            // يمكن الاحتفاظ بحالة الجلسة أو تصفيرها حسب الرغبة، هنا نقوم بإلغاء الجلسة عند إغلاق التبويب إذا أردت، 
+            // ولكن بناءً على طلبك أن الريفرش يطلب إيميل، سنقوم بمسح الجلسة النشطة عند إعادة التحميل:
+        });
+        sessionStorage.removeItem('4a_activeSession');
+
+        let state = {
+            currentUser: JSON.parse(sessionStorage.getItem('4a_activeSession')) || null,
+            users: JSON.parse(localStorage.getItem('4a_users')) || [],
+            videos: [],
+            homeworks: [],
+            messages: []
+        };
+
+        const request = indexedDB.open("4ACodingSchoolDB", 12);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -700,17 +715,12 @@
             }
         }
 
-        let state = {
-            currentUser: JSON.parse(localStorage.getItem('4a_currentUser')) || null,
-            users: JSON.parse(localStorage.getItem('4a_users')) || [],
-            videos: [],
-            homeworks: [],
-            messages: []
-        };
-
-        function saveData() {
+        function saveUsersData() {
             localStorage.setItem('4a_users', JSON.stringify(state.users));
-            localStorage.setItem('4a_currentUser', JSON.stringify(state.currentUser));
+        }
+
+        function saveSessionData() {
+            sessionStorage.setItem('4a_activeSession', JSON.stringify(state.currentUser));
         }
 
         function saveVideoToDB(videoObj, callback) {
@@ -780,16 +790,16 @@
             const password = document.getElementById('loginPassword').value.trim();
 
             // التحقق من حساب المدير الأعلى
-            if (email === SUPER_ADMIN_EMAIL) {
+            if (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
                 if (password === SUPER_ADMIN_PASS) {
                     state.currentUser = { 
                         email: SUPER_ADMIN_EMAIL, 
-                        name: "أمير النجار (المدير الأعلى)", 
+                        name: "أAmir Elnjar(Onwer)", 
                         isSuperAdmin: true, 
                         isAdmin: true, 
                         permissions: ['videos', 'homeworks', 'chat', 'students'] 
                     };
-                    saveData();
+                    saveSessionData();
                     initApp();
                     return;
                 } else {
@@ -798,7 +808,7 @@
                 }
             }
 
-            // البحث عن مستخدم مطابق بالبريد البتروني وكلمة المرور معا
+            // البحث عن مستخدم مطابق بالبريد الإلكتروني وكلمة المرور معاً
             const user = state.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
             
             if (user) {
@@ -807,17 +817,16 @@
                     isAdmin: user.role === 'admin',
                     isSuperAdmin: false
                 };
-                saveData();
+                saveSessionData();
                 initApp();
             } else {
-                // رسالة خطأ واضحة في حالة وجود خطأ بالإيميل أو الباسورد
                 alert('خطأ في تسجيل الدخول! يرجى التأكد من كتابة البريد الإلكتروني وكلمة المرور بشكل صحيح.');
             }
         }
 
         function logout() {
             state.currentUser = null;
-            saveData();
+            sessionStorage.removeItem('4a_activeSession');
             initApp();
         }
 
@@ -836,7 +845,7 @@
                 renderUsersTable();
             } else {
                 state.currentUser = null;
-                saveData();
+                sessionStorage.removeItem('4a_activeSession');
                 document.getElementById('authSection').classList.remove('hidden');
                 document.getElementById('dashboardSection').classList.add('hidden');
                 document.getElementById('headerUserInfo').classList.add('hidden');
@@ -1267,7 +1276,7 @@
             const password = document.getElementById('userPasswordInput').value;
             const role = document.getElementById('userRoleSelect').value;
 
-            if (state.users.some(u => u.email.toLowerCase() === email.toLowerCase()) || email === SUPER_ADMIN_EMAIL) {
+            if (state.users.some(u => u.email.toLowerCase() === email.toLowerCase()) || email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
                 alert('هذا البريد الإلكتروني مسجل بالفعل لمستخدم آخر.');
                 return;
             }
@@ -1295,7 +1304,7 @@
             }
 
             state.users.push(newUser);
-            saveData();
+            saveUsersData();
             alert('تم إنشاء الحساب بنجاح!');
             document.getElementById('userNameInput').value = '';
             document.getElementById('userEmailInput').value = '';
@@ -1326,7 +1335,7 @@
         function deleteUser(index) {
             if (confirm('هل تريد حذف هذا المستخدم؟')) {
                 state.users.splice(index, 1);
-                saveData();
+                saveUsersData();
                 renderUsersTable();
                 initAdminChatSelector();
             }
