@@ -411,6 +411,19 @@
             color: #000;
         }
 
+        .lesson-img-preview {
+            max-width: 80px;
+            max-height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .lesson-img-preview:hover {
+            opacity: 0.8;
+        }
+
         .homework-box {
             background: rgba(255,255,255,0.03);
             border: 1px dashed var(--border-color);
@@ -604,7 +617,6 @@
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i> <span data-i18n="support">دعم واتساب: 01021205814</span>
             </a>
             
-            <!-- قائمة اختيار اللغة -->
             <select class="lang-select-header" id="appLanguageSelect" onchange="changeAppLanguage(this.value)">
                 <option value="ar">العربية 🇪🇬</option>
                 <option value="en">English 🇬🇧</option>
@@ -1028,7 +1040,6 @@
             }
         };
 
-        // قاموس ترجمة تلقائية بسيط من الإنجليزية إلى العربية للرسائل
         const enToArabicDictionary = {
             "hello": "مرحباً",
             "hi": "أهلاً",
@@ -1052,7 +1063,6 @@
             if (enToArabicDictionary[lower]) {
                 return enToArabicDictionary[lower];
             }
-            // إذا كانت الرسالة إنجليزية تحتوي كلمات مفردة
             let words = text.split(" ");
             let translatedWords = words.map(w => {
                 let clean = w.toLowerCase().replace(/[^a-z]/g, "");
@@ -1116,7 +1126,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 29);
+        const request = indexedDB.open("4ACodingSchoolDB", 30);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -1525,7 +1535,6 @@
                 let textDisplay = m.originalText;
                 let translateNotice = '';
 
-                // ترجمة الرسائل من الإنجليزية إلى العربية حصراً لعند المشرف وعند الطالب
                 if (m.isTranslated) {
                     textDisplay = m.translatedText;
                     translateNotice = `<span class="translated-tag">(مترجم للعربية تلقائياً من الإنجليزية: "${m.originalText}")</span>`;
@@ -1731,9 +1740,14 @@
 
                 let imgHtml = '';
                 if (v.imageFiles && v.imageFiles.length > 0) {
-                    imgHtml += `<div style="margin-top:6px;"><label><i class="fa-solid fa-images"></i> الصور التوضيحية:</label><div style="display:flex; gap:6px; flex-wrap:wrap;">`;
+                    imgHtml += `<div style="margin-top:6px;"><label><i class="fa-solid fa-images"></i> الصور التوضيحية (اضغط لتحميلها):</label><div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">`;
                     v.imageFiles.forEach(img => {
-                        imgHtml += `<a href="${img.data}" download="${img.name || 'image.png'}" class="file-link-item"><i class="fa-solid fa-download"></i> ${img.name || 'تحميل الصورة'}</a>`;
+                        // تعديل هنا: الضغط على الصورة يعتمد على attribute الـ download مباشرة لتنزل على الجهاز
+                        imgHtml += `
+                            <a href="${img.data}" download="${img.name || 'image.png'}" title="اضغط لتحميل الصورة على جهازك" style="display:inline-block;">
+                                <img src="${img.data}" class="lesson-img-preview">
+                            </a>
+                        `;
                     });
                     imgHtml += `</div></div>`;
                 }
