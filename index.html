@@ -495,13 +495,13 @@
                 <li id="menuChat" class="permission-check" data-perm="chat" onclick="switchTab('chat')">
                     <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle">تواصل مع المعلم</span>
                 </li>
-                <li id="menuAddVideo" class="permission-check" data-perm="videos" onclick="switchTab('addVideo')">
+                <li id="menuAddVideo" class="admin-only hidden" onclick="switchTab('addVideo')">
                     <i class="fa-solid fa-folder-plus"></i> رفع دروس وفيديوهات
                 </li>
-                <li id="menuHomeworks" class="permission-check" data-perm="homeworks" onclick="switchTab('homeworks')">
+                <li id="menuHomeworks" class="admin-only hidden" onclick="switchTab('homeworks')">
                     <i class="fa-solid fa-clipboard-check"></i> متابعة واجبات الطلاب
                 </li>
-                <li id="menuStudents" class="permission-check" data-perm="students" onclick="switchTab('students')">
+                <li id="menuStudents" class="admin-only hidden" onclick="switchTab('students')">
                     <i class="fa-solid fa-users"></i> إدارة المستخدمين
                 </li>
             </ul>
@@ -595,7 +595,7 @@
                 </table>
             </div>
 
-            <!-- قسم إدارة المستخدمين (الطلاب والمشرفين الصلاحيات) -->
+            <!-- قسم إدارة المستخدمين -->
             <div id="tabStudents" class="hidden">
                 <h2><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد (طالب أو مشرف مساعد)</h2>
                 <div style="max-width: 600px; margin-top: 20px;">
@@ -664,7 +664,7 @@
         let currentFolderFilter = 'all';
         let activeChatEmail = null;
 
-        const request = indexedDB.open("4ACodingSchoolDB", 9);
+        const request = indexedDB.open("4ACodingSchoolDB", 10);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -823,6 +823,8 @@
                 loadMessagesFromDB();
                 renderUsersTable();
             } else {
+                state.currentUser = null;
+                saveData();
                 document.getElementById('authSection').classList.remove('hidden');
                 document.getElementById('dashboardSection').classList.add('hidden');
                 document.getElementById('headerUserInfo').classList.add('hidden');
