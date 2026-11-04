@@ -470,7 +470,7 @@
     <!-- شاشة تسجيل الدخول الإجبارية -->
     <div class="auth-container" id="authSection">
         <div class="auth-card">
-            <h2>تسجيل الدخول الإجباري</h2>
+            <h2>تسجيل الدخول</h2>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>البريد الإلكتروني</label>
@@ -659,12 +659,14 @@
 
     <script>
         const SUPER_ADMIN_EMAIL = "Amirstudent1@student.com";
+        const SUPER_ADMIN_PASS = "123456789"; // كلمة مرور المدير الأساسية (يمكنك تغييرها)
+
         let deferredPrompt;
         let db;
         let currentFolderFilter = 'all';
         let activeChatEmail = null;
 
-        const request = indexedDB.open("4ACodingSchoolDB", 10);
+        const request = indexedDB.open("4ACodingSchoolDB", 11);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -771,25 +773,34 @@
             };
         }
 
+        // التحقق الدقيق من البريد الإلكتروني وكلمة المرور
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
+            // التحقق من حساب المدير الأعلى
             if (email === SUPER_ADMIN_EMAIL) {
-                state.currentUser = { 
-                    email: SUPER_ADMIN_EMAIL, 
-                    name: "أمير النجار (المدير الأعلى)", 
-                    isSuperAdmin: true, 
-                    isAdmin: true, 
-                    permissions: ['videos', 'homeworks', 'chat', 'students'] 
-                };
-                saveData();
-                initApp();
-                return;
+                if (password === SUPER_ADMIN_PASS) {
+                    state.currentUser = { 
+                        email: SUPER_ADMIN_EMAIL, 
+                        name: "أمير النجار (المدير الأعلى)", 
+                        isSuperAdmin: true, 
+                        isAdmin: true, 
+                        permissions: ['videos', 'homeworks', 'chat', 'students'] 
+                    };
+                    saveData();
+                    initApp();
+                    return;
+                } else {
+                    alert('عذراً، كلمة المرور الخاصة بالمدير غير صحيحة!');
+                    return;
+                }
             }
 
-            const user = state.users.find(u => u.email === email && u.password === password);
+            // البحث عن مستخدم مطابق بالبريد البتروني وكلمة المرور معا
+            const user = state.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+            
             if (user) {
                 state.currentUser = { 
                     ...user, 
@@ -799,7 +810,8 @@
                 saveData();
                 initApp();
             } else {
-                alert('عذراً، البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+                // رسالة خطأ واضحة في حالة وجود خطأ بالإيميل أو الباسورد
+                alert('خطأ في تسجيل الدخول! يرجى التأكد من كتابة البريد الإلكتروني وكلمة المرور بشكل صحيح.');
             }
         }
 
@@ -1255,7 +1267,7 @@
             const password = document.getElementById('userPasswordInput').value;
             const role = document.getElementById('userRoleSelect').value;
 
-            if (state.users.some(u => u.email === email) || email === SUPER_ADMIN_EMAIL) {
+            if (state.users.some(u => u.email.toLowerCase() === email.toLowerCase()) || email === SUPER_ADMIN_EMAIL) {
                 alert('هذا البريد الإلكتروني مسجل بالفعل لمستخدم آخر.');
                 return;
             }
