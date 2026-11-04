@@ -671,9 +671,9 @@
                 </div>
             </div>
 
-            <!-- رفع مجلد الفيديوهات (كما طلبته تماماً) -->
+            <!-- رفع مجلد فيديوهات شامل -->
             <div id="tabAddVideo" class="hidden">
-                <h2><i class="fa-solid fa-cloud-arrow-up"></i> رفع مجلد فيديوهات كامل (Folder)</h2>
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> رفع مجلد فيديوهات كامل (Upload All Videos)</h2>
                 <div style="max-width: 600px; margin-top: 20px;">
                     <form onsubmit="handleAddVideoFolder(event)">
                         <div class="form-group">
@@ -681,15 +681,15 @@
                             <input type="text" id="videoFolder" required placeholder="مثال: Blocks أو Python">
                         </div>
                         <div class="form-group">
-                            <label>اختر مجلد الفيديوهات الكامل من جهازك:</label>
+                            <label>اختر مجلد الفيديوهات الكامل من جهازك (سيتم رفع كل الفيديوهات بداخله دفعة واحدة):</label>
                             <input type="file" id="videoFolderFiles" accept="video/*" webkitdirectory directory multiple required style="color:#fff;">
                         </div>
-                        <button type="submit" class="btn-primary">رفع وحفظ كل الفيديوهات</button>
+                        <button type="submit" class="btn-primary">رفع وحفظ كافة الفيديوهات</button>
                     </form>
                 </div>
             </div>
 
-            <!-- قسم إضافة وتعديل ملحقات السيشنات (PowerPoint وصور) -->
+            <!-- قسم إضافة الملحقات (PowerPoint وصور) للسيشنات -->
             <div id="tabAddAttachments" class="hidden">
                 <h2><i class="fa-solid fa-file-circle-plus"></i> إضافة ملحقات (PowerPoint & صور) لسيشن معين</h2>
                 <div style="max-width: 600px; margin-top: 20px; background:var(--card-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
@@ -789,6 +789,7 @@
                             <label>حدد صلاحيات هذا المشرف:</label>
                             <div class="checkbox-group">
                                 <label class="checkbox-item"><input type="checkbox" value="videos" class="admin-perm-box" checked> رفع الفيديوهات</label>
+                                <label class="checkbox-item"><input type="checkbox" value="addAttachments" class="admin-perm-box" checked> إضافة الملحقات</label>
                                 <label class="checkbox-item"><input type="checkbox" value="homeworks" class="admin-perm-box" checked> متابعة الواجبات</label>
                                 <label class="checkbox-item"><input type="checkbox" value="chat" class="admin-perm-box" checked> الرد على محادثات الطلاب</label>
                                 <label class="checkbox-item"><input type="checkbox" value="students" class="admin-perm-box"> إدارة المستخدمين</label>
@@ -860,7 +861,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 25);
+        const request = indexedDB.open("4ACodingSchoolDB", 26);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -1251,7 +1252,7 @@
             box.scrollTop = box.scrollHeight;
         }
 
-        // رفع مجلد الفيديوهات واستخراج كافة الفيديوهات بدقة
+        // رفع كافة فيديوهات المجلد دفعة واحدة
         function handleAddVideoFolder(e) {
             e.preventDefault();
             const folder = document.getElementById('videoFolder').value.trim() || "عام";
@@ -1265,7 +1266,7 @@
 
             const videoFiles = Array.from(files).filter(f => f.type.startsWith('video/') || f.name.match(/\.(mp4|mkv|webm|avi|mov)$/i));
             if (videoFiles.length === 0) {
-                alert('لم يتم العثور على ملفات فيديو صالحة داخل المجلد.');
+                alert('لم يتم العثور على ملفات فيديو صالحة داخل المجلد المحدد.');
                 return;
             }
 
@@ -1285,7 +1286,7 @@
                 saveVideoToDB(newVideo, function() {
                     processedCount++;
                     if (processedCount === videoFiles.length) {
-                        alert(`تم استخراج وحفظ ${videoFiles.length} فيديو من المجلد بنجاح!`);
+                        alert(`تم استخراج ورفع كافة فيديوهات المجلد (${videoFiles.length} فيديو) بنجاح!`);
                         fileInput.value = '';
                         switchTab('videos');
                     }
@@ -1293,7 +1294,6 @@
             });
         }
 
-        // إضافة ملحقات (PowerPoint وصور) لسيشن محدد
         function renderAttachmentsVideoSelect() {
             const select = document.getElementById('targetVideoSelect');
             if (!select) return;
