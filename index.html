@@ -862,6 +862,19 @@
         </div>
     </div>
 
+    <!-- نافذة تعديل صلاحيات الفيديوهات للطالب -->
+    <div id="editStudentModal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; z-index:9999;">
+        <div style="background:var(--card-bg); padding:30px; border-radius:12px; border:1px solid var(--border-color); width:90%; max-width:500px;">
+            <h3 id="editModalTitle" style="color:var(--accent); margin-bottom:15px;">تعديل الفيديوهات المسموحة للطالب</h3>
+            <input type="hidden" id="editStudentEmail">
+            <div class="checkbox-group" id="editStudentVideosList" style="max-height:250px; margin-bottom:20px;"></div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="saveStudentPermissionsEdit()" class="btn-primary" style="flex:1;">حفظ التعديلات</button>
+                <button onclick="closeEditModal()" style="background:var(--danger); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SUPER_ADMIN_EMAIL = "Amirstudent1@student.com";
         const SUPER_ADMIN_PASS = "123456";
@@ -1126,7 +1139,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 30);
+        const request = indexedDB.open("4ACodingSchoolDB", 31);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -1742,7 +1755,6 @@
                 if (v.imageFiles && v.imageFiles.length > 0) {
                     imgHtml += `<div style="margin-top:6px;"><label><i class="fa-solid fa-images"></i> الصور التوضيحية (اضغط لتحميلها):</label><div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">`;
                     v.imageFiles.forEach(img => {
-                        // تعديل هنا: الضغط على الصورة يعتمد على attribute الـ download مباشرة لتنزل على الجهاز
                         imgHtml += `
                             <a href="${img.data}" download="${img.name || 'image.png'}" title="اضغط لتحميل الصورة على جهازك" style="display:inline-block;">
                                 <img src="${img.data}" class="lesson-img-preview">
@@ -1986,6 +1998,57 @@
             });
         }
 
+        // فتح نافذة تعديل صلاحيات الفيديوهات للطالب
+        function openEditStudentModal(email) {
+            const student = state.users.find(u => u.email === email);
+            if (!student) return;
+
+            document.getElementById('editStudentEmail').value = email;
+            document.getElementById('editModalTitle').textContent = `تعديل صلاحيات الطالب: ${student.name}`;
+            
+            const container = document.getElementById('editStudentVideosList');
+            container.innerHTML = '';
+
+            if (state.videos.length === 0) {
+                container.innerHTML = '<span style="color:var(--text-muted);">لا توجد فيديوهات مرفوعة بعد.</span>';
+            } else {
+                const allowed = student.allowedVideos || [];
+                state.videos.forEach(v => {
+                    const isChecked = allowed.includes(v.id) ? 'checked' : '';
+                    const item = document.createElement('label');
+                    item.className = 'checkbox-item';
+                    item.innerHTML = `
+                        <input type="checkbox" value="${v.id}" class="edit-video-perm-check" ${isChecked}>
+                        <span>[${v.folder || "عام"}] ${v.title}</span>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            document.getElementById('editStudentModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editStudentModal').classList.add('hidden');
+        }
+
+        function saveStudentPermissionsEdit() {
+            const email = document.getElementById('editStudentEmail').value;
+            const student = state.users.find(u => u.email === email);
+            if (!student) return;
+
+            const newAllowedVideos = [];
+            document.querySelectorAll('.edit-video-perm-check:checked').forEach(chk => {
+                newAllowedVideos.push(chk.value);
+            });
+
+            student.allowedVideos = newAllowedVideos;
+            saveUsersData();
+            alert('تم تحديث صلاحيات الفيديوهات للطالب بنجاح! سيتمكن من رؤية الفيديوهات المضافة حديثاً فوراً.');
+            closeEditModal();
+            renderUsersTable();
+        }
+
         function renderGroupsManagement() {
             const container = document.getElementById('groupStudentsCheckboxes');
             if (!container) return;
@@ -2112,11 +2175,17 @@
             tbody.innerHTML = '';
             state.users.forEach((u, index) => {
                 const tr = document.createElement('tr');
+                let editBtn = '';
+                if (u.role === 'student') {
+                    editBtn = `<button onclick="openEditStudentModal('${u.email}')" style="background:var(--accent); color:#000; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold; margin-left:5px;">تعديل الصلاحيات</button>`;
+                }
+
                 tr.innerHTML = `
                     <td>${u.name}</td>
                     <td>${u.email}</td>
                     <td>${u.role === 'admin' ? '<span style="color:var(--accent);">مشرف مساعد</span>' : 'طالب'}</td>
                     <td>
+                        ${editBtn}
                         <button onclick="deleteUser(${index})" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">حذف</button>
                     </td>
                 `;
