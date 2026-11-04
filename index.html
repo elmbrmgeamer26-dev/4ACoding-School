@@ -443,6 +443,36 @@
             object-fit: cover;
         }
 
+        /* تعديلات النسخة الثانية (تنسيق الموبايل لتشغيل سلس بدون تعليق) */
+        body.mobile-version .dashboard {
+            flex-direction: column;
+        }
+        body.mobile-version .sidebar {
+            width: 100%;
+            border-left: none;
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 0;
+        }
+        body.mobile-version .sidebar-menu {
+            display: flex;
+            overflow-x: auto;
+            gap: 5px;
+            padding: 0 10px;
+        }
+        body.mobile-version .sidebar-menu li {
+            padding: 10px 15px;
+            white-space: nowrap;
+            border-right: none !important;
+            border-bottom: 3px solid transparent;
+        }
+        body.mobile-version .sidebar-menu li.active {
+            border-bottom-color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+        body.mobile-version .content {
+            padding: 15px;
+        }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -451,7 +481,7 @@
     <header>
         <div class="header-brand">
             <div class="logo">
-                <i class="fa-solid fa-code"></i> 4A Coding School
+                <i class="fa-solid fa-code"></i> 4A Coding School <span id="deviceVersionTag" style="font-size: 0.75rem; color: var(--accent); font-weight: normal; margin-right: 5px;"></span>
             </div>
             <a href="https://wa.me/201021205814" target="_blank" class="support-badge">
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i> دعم واتساب: 01021205814
@@ -659,14 +689,31 @@
 
     <script>
         const SUPER_ADMIN_EMAIL = "Amirstudent1@student.com";
-        const SUPER_ADMIN_PASS = "123456"; // كلمة مرور المدير الافتراضية (يمكنك تعديلها هنا)
+        const SUPER_ADMIN_PASS = "123456";
 
         let deferredPrompt;
         let db;
         let currentFolderFilter = 'all';
         let activeChatEmail = null;
 
-        // تصفير جلسة الدخول عند عمل Refresh لضمان طلب الإيميل في كل مرة
+        // استشعار نوع الجهاز (لابتوب أو موبايل) وتفعيل النسخة المناسبة تلقائياً
+        function detectDeviceAndApplyVersion() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+            const versionTag = document.getElementById('deviceVersionTag');
+            
+            if (isMobile) {
+                document.body.classList.add('mobile-version');
+                if (versionTag) versionTag.textContent = "(نسخة الموبايل الثانية)";
+            } else {
+                document.body.classList.remove('mobile-version');
+                if (versionTag) versionTag.textContent = "(نسخة اللابتوب الأولى)";
+            }
+        }
+
+        window.addEventListener('resize', detectDeviceAndApplyVersion);
+        detectDeviceAndApplyVersion();
+
+        // تصفير جلسة الدخول عند عمل Refresh لضمان طلب الإيميل والباسورد في كل مرة
         sessionStorage.removeItem('4a_activeSession');
 
         let state = {
@@ -677,7 +724,7 @@
             messages: []
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 14);
+        const request = indexedDB.open("4ACodingSchoolDB", 15);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -784,9 +831,8 @@
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
-            // التحقق من حساب المدير الأساسي بدقة (مع دعم كلمة المرور 123456 أو أي باسورد تحب وضعه هنا)
             if (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
-                if (password === SUPER_ADMIN_PASS || password === "123456" || password === "Amirstudent1") {
+                if (password === SUPER_ADMIN_PASS) {
                     state.currentUser = { 
                         email: SUPER_ADMIN_EMAIL, 
                         name: "أمير النجار (المدير الأعلى)", 
@@ -798,12 +844,11 @@
                     initApp();
                     return;
                 } else {
-                    alert('كلمة المرور الخاصة بالمدير غير صحيحة! كلمة المرور الافتراضية هي: 123456');
+                    alert('كلمة المرور الخاصة بالمدير غير صحيحة!');
                     return;
                 }
             }
 
-            // البحث عن مستخدم عادي أو مشرف مساعد في قاعدة البيانات
             const user = state.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
             
             if (user) {
@@ -815,7 +860,7 @@
                 saveSessionData();
                 initApp();
             } else {
-                alert('خطأ في البريد الإلكتروني أو كلمة المرور! تأكد من صحة البيانات المسجلة.');
+                alert('خطأ في البريد الإلكتروني أو كلمة المرور! تأكد من صحة البيانات.');
             }
         }
 
