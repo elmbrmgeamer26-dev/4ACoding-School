@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4A Coding School</title>
+    <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%224A%20Coding%20School%22,%22short_name%22:%224A%20Coding%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#0f172a%22,%22theme_color%22:%22#0f172a%22}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --whatsapp: #25d366;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .support-badge {
+            background-color: rgba(37, 211, 102, 0.15);
+            border: 1px solid var(--whatsapp);
+            color: #4ade80;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .support-badge:hover {
+            background-color: var(--whatsapp);
+            color: #fff;
+        }
+
+        .btn-install-header {
+            background-color: var(--success);
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+            transition: 0.2s;
+        }
+
+        .btn-install-header:hover {
+            background-color: #059669;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .auth-card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            color: white;
+        }
+
+        .dashboard {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 20px 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            padding: 15px 25px;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .sidebar-menu li:hover, .sidebar-menu li.active {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border-right: 4px solid var(--accent);
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .folder-filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .folder-chip {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .folder-chip.active, .folder-chip:hover {
+            background-color: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            font-weight: bold;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-player-container {
+            width: 100%;
+            height: 180px;
+            background-color: #000;
+        }
+
+        .video-player-container iframe, .video-player-container video {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-info {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-title {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .video-folder-tag {
+            font-size: 0.75rem;
+            color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .video-desc {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+
+        .homework-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px dashed var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .homework-box label {
+            font-size: 0.8rem;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.student {
+            background-color: #334155;
+            align-self: flex-start;
+            border-top-right-radius: 0;
+        }
+
+        .chat-bubble.admin {
+            background-color: var(--accent);
+            color: #000;
+            align-self: flex-end;
+            border-top-left-radius: 0;
+            font-weight: 500;
+        }
+
+        .chat-sender {
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 15px;
+            background-color: var(--bg-dark);
+            border-top: 1px solid var(--border-color);
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: white;
+        }
+
+        .chat-input-area button {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 0 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .data-table th {
+            background-color: rgba(255,255,255,0.05);
+            color: var(--accent);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: var(--bg-dark);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-item input {
+            width: auto;
+        }
+
+        .hw-preview-media {
+            max-width: 150px;
+            max-height: 100px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-brand">
+            <div class="logo">
+                <i class="fa-solid fa-code"></i> 4A Coding School
+            </div>
+            <a href="https://wa.me/201021205814" target="_blank" class="support-badge">
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i> دعم واتساب: 01021205814
+            </a>
+            <button id="headerInstallBtn" class="btn-install-header hidden" onclick="triggerAppInstall()">
+                <i class="fa-solid fa-download"></i> تثبيت التطبيق
+            </button>
+        </div>
+
+        <div class="user-info hidden" id="headerUserInfo">
+            <span id="userNameDisplay"></span>
+            <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+        </div>
+    </header>
+
+    <div class="auth-container" id="authSection">
+        <div class="auth-card">
+            <h2>تسجيل الدخول</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="loginEmail" required placeholder="example@student.com">
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="loginPassword" required placeholder="******">
+                </div>
+                <button type="submit" class="btn-primary">دخول</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="dashboard hidden" id="dashboardSection">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li id="menuVideos" class="active" onclick="switchTab('videos')">
+                    <i class="fa-solid fa-play"></i> الدروس والتطبيقات
+                </li>
+                <li id="menuChat" onclick="switchTab('chat')">
+                    <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle">تواصل مع المعلم</span>
+                </li>
+                <li id="menuAddVideo" class="admin-only hidden" onclick="switchTab('addVideo')">
+                    <i class="fa-solid fa-folder-plus"></i> رفع دروس وفيديوهات
+                </li>
+                <li id="menuHomeworks" class="admin-only hidden" onclick="switchTab('homeworks')">
+                    <i class="fa-solid fa-clipboard-check"></i> متابعة واجبات الطلاب
+                </li>
+                <li id="menuStudents" class="admin-only hidden" onclick="switchTab('students')">
+                    <i class="fa-solid fa-users"></i> إدارة الطلاب
+                </li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <!-- قسم الفيديوهات -->
+            <div id="tabVideos">
+                <h2><i class="fa-solid fa-video"></i> المكتبة التعليمية</h2>
+                <div class="folder-filter-bar" id="folderFilterBar">
+                    <div class="folder-chip active" onclick="filterFolder('all', this)">جميع الأقسام</div>
+                </div>
+                <div class="video-grid" id="videoList"></div>
+            </div>
+
+            <!-- قسم المحادثة المباشرة -->
+            <div id="tabChat" class="hidden">
+                <h2 id="chatHeaderTitle"><i class="fa-solid fa-comments"></i> المحادثة المباشرة</h2>
+                
+                <div id="adminChatSelector" class="hidden" style="margin-bottom: 15px;">
+                    <label style="color:var(--text-muted); font-size:0.9rem; display:block; margin-bottom:5px;">اختر الطالب لمحادثته:</label>
+                    <select id="chatStudentSelect" onchange="changeActiveChatStudent()" style="max-width: 300px; padding: 10px; background:var(--card-bg); color:white; border:1px solid var(--border-color); border-radius:6px;"></select>
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessagesBox"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInputText" placeholder="اكتب رسالتك هنا..." onkeypress="handleChatKeyPress(event)">
+                        <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i> إرسال</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم رفع الفيديوهات -->
+            <div id="tabAddVideo" class="hidden">
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> رفع فيديو وتصنيفه في مجلد</h2>
+                <div style="max-width: 600px; margin-top: 20px;">
+                    <form onsubmit="handleAddVideo(event)">
+                        <div class="form-group">
+                            <label>اسم المجلد أو القسم التعليمي</label>
+                            <input type="text" id="videoFolder" required placeholder="مثال: أساسيات Python أو تصميم HTML">
+                        </div>
+                        <div class="form-group">
+                            <label>مصدر الفيديو</label>
+                            <select id="videoType" onchange="toggleVideoInputType()">
+                                <option value="youtube">رابط من YouTube</option>
+                                <option value="local">رفع مجلد أو فيديوهات من الجهاز</option>
+                            </select>
+                        </div>
+
+                        <div id="youtubeInputGroup">
+                            <div class="form-group">
+                                <label>عنوان الدرس</label>
+                                <input type="text" id="videoTitle" placeholder="مثال: الدوال في بايثون">
+                            </div>
+                            <div class="form-group">
+                                <label>وصف مختصر</label>
+                                <textarea id="videoDesc" rows="2" placeholder="شرح مبسط..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>رابط اليوتيوب (URL)</label>
+                                <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
+                            </div>
+                        </div>
+
+                        <div class="hidden" id="localInputGroup">
+                            <div class="form-group">
+                                <label>اختر مجلد الفيديوهات الكامل (Folder):</label>
+                                <input type="file" id="videoFolderFiles" accept="video/*" webkitdirectory directory multiple>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary" id="saveVideoBtn">نشر وحفظ الدرس</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- قسم الواجبات المرفوعة -->
+            <div id="tabHomeworks" class="hidden">
+                <h2><i class="fa-solid fa-clipboard-list"></i> الواجبات المرفوعة من الطلاب</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>اسم الطالب</th>
+                            <th>الدرس</th>
+                            <th>ملف الواجب (سكرين شوت أو تسجيل شاشة)</th>
+                            <th>وقت الإرسال</th>
+                        </tr>
+                    </thead>
+                    <tbody id="homeworksTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- قسم إدارة الطلاب -->
+            <div id="tabStudents" class="hidden">
+                <h2><i class="fa-solid fa-user-plus"></i> إضافة حساب طالب جديد</h2>
+                <div style="max-width: 600px; margin-top: 20px;">
+                    <form onsubmit="handleAddStudent(event)">
+                        <div class="form-group">
+                            <label>اسم الطالب</label>
+                            <input type="text" id="studentName" required placeholder="اسم الطالب">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني للطالب</label>
+                            <input type="email" id="studentEmail" required placeholder="student@school.com">
+                        </div>
+                        <div class="form-group">
+                            <label>كلمة المرور</label>
+                            <input type="password" id="studentPassword" required placeholder="******">
+                        </div>
+                        <div class="form-group">
+                            <label>حدد الفيديوهات المسموح مشاهدتها:</label>
+                            <div class="checkbox-group" id="studentVideoPermissions"></div>
+                        </div>
+                        <button type="submit" class="btn-primary">إنشاء الحساب وتعيين الصلاحيات</button>
+                    </form>
+                </div>
+
+                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-gear"></i> قائمة الطلاب المسجلين</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الفيديوهات المتاحة</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_EMAIL = "Amirstudent1@student.com";
+        let deferredPrompt;
+        let db;
+        let currentFolderFilter = 'all';
+        let activeChatEmail = null;
+
+        const request = indexedDB.open("4ACodingSchoolDB", 8);
+        request.onupgradeneeded = function(e) {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
+            if (!db.objectStoreNames.contains("homeworks")) db.createObjectStore("homeworks", { keyPath: "id" });
+            if (!db.objectStoreNames.contains("messages")) db.createObjectStore("messages", { keyPath: "id" });
+        };
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            loadVideosFromDB();
+            loadHomeworksFromDB();
+        };
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('headerInstallBtn');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        function triggerAppInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('headerInstallBtn').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert('تثبيت التطبيق متاح من قائمة المتصفح.');
+            }
+        }
+
+        let state = {
+            currentUser: JSON.parse(localStorage.getItem('4a_currentUser')) || null,
+            users: JSON.parse(localStorage.getItem('4a_users')) || [],
+            videos: [],
+            homeworks: [],
+            messages: []
+        };
+
+        function saveData() {
+            localStorage.setItem('4a_users', JSON.stringify(state.users));
+            localStorage.setItem('4a_currentUser', JSON.stringify(state.currentUser));
+        }
+
+        function saveVideoToDB(videoObj, callback) {
+            if (!db) return;
+            const tx = db.transaction("videos", "readwrite");
+            tx.objectStore("videos").put(videoObj);
+            tx.oncomplete = () => { if (callback) callback(); };
+        }
+
+        function loadVideosFromDB() {
+            if (!db) return;
+            const tx = db.transaction("videos", "readonly");
+            const getAll = tx.objectStore("videos").getAll();
+            getAll.onsuccess = function() {
+                state.videos = getAll.result || [];
+                renderFoldersFilter();
+                renderVideos();
+                renderPermissionsList();
+            };
+        }
+
+        function deleteVideoFromDB(id) {
+            if (!db) return;
+            const tx = db.transaction("videos", "readwrite");
+            tx.objectStore("videos").delete(id);
+            tx.oncomplete = () => loadVideosFromDB();
+        }
+
+        function saveHomeworkToDB(hwObj) {
+            if (!db) return;
+            const tx = db.transaction("homeworks", "readwrite");
+            tx.objectStore("homeworks").put(hwObj);
+            tx.oncomplete = () => loadHomeworksFromDB();
+        }
+
+        function loadHomeworksFromDB() {
+            if (!db) return;
+            const tx = db.transaction("homeworks", "readonly");
+            const getAll = tx.objectStore("homeworks").getAll();
+            getAll.onsuccess = function() {
+                state.homeworks = getAll.result || [];
+                renderHomeworksTable();
+            };
+        }
+
+        function saveMessageToDB(msgObj) {
+            if (!db) return;
+            const tx = db.transaction("messages", "readwrite");
+            tx.objectStore("messages").put(msgObj);
+            tx.oncomplete = () => loadMessagesFromDB();
+        }
+
+        function loadMessagesFromDB() {
+            if (!db) return;
+            const tx = db.transaction("messages", "readonly");
+            const getAll = tx.objectStore("messages").getAll();
+            getAll.onsuccess = function() {
+                state.messages = getAll.result || [];
+                renderChatMessages();
+            };
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (email === ADMIN_EMAIL) {
+                state.currentUser = { email: ADMIN_EMAIL, name: "أمير النجار (المسؤول)", isAdmin: true };
+                saveData();
+                initApp();
+                return;
+            }
+
+            const student = state.users.find(u => u.email === email && u.password === password);
+            if (student) {
+                state.currentUser = { ...student, isAdmin: false };
+                saveData();
+                initApp();
+            } else {
+                alert('عذراً، البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+            }
+        }
+
+        function logout() {
+            state.currentUser = null;
+            saveData();
+            initApp();
+        }
+
+        function initApp() {
+            if (state.currentUser && state.currentUser.email) {
+                document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                document.getElementById('headerUserInfo').classList.remove('hidden');
+                document.getElementById('userNameDisplay').textContent = state.currentUser.name;
+
+                if (state.currentUser.isAdmin) {
+                    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                    document.getElementById('chatMenuTitle').textContent = "رسائل الطلاب";
+                    initAdminChatSelector();
+                } else {
+                    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                    document.getElementById('chatMenuTitle').textContent = "تواصل مع المعلم";
+                    activeChatEmail = state.currentUser.email;
+                }
+
+                loadVideosFromDB();
+                loadHomeworksFromDB();
+                loadMessagesFromDB();
+                renderStudentsTable();
+            } else {
+                document.getElementById('authSection').classList.remove('hidden');
+                document.getElementById('dashboardSection').classList.add('hidden');
+                document.getElementById('headerUserInfo').classList.add('hidden');
+            }
+        }
+
+        function initAdminChatSelector() {
+            const select = document.getElementById('chatStudentSelect');
+            if (!select) return;
+            select.innerHTML = '';
+            if (state.users.length === 0) {
+                select.innerHTML = '<option value="">لا توجد طلاب مسجلين بعد</option>';
+                return;
+            }
+            state.users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.email;
+                opt.textContent = `${u.name} (${u.email})`;
+                select.appendChild(opt);
+            });
+            if (state.users.length > 0 && !activeChatEmail) {
+                activeChatEmail = state.users[0].email;
+            }
+        }
+
+        function changeActiveChatStudent() {
+            const select = document.getElementById('chatStudentSelect');
+            if (select) {
+                activeChatEmail = select.value;
+                renderChatMessages();
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+            document.getElementById('tabVideos').classList.add('hidden');
+            document.getElementById('tabChat').classList.add('hidden');
+            document.getElementById('tabAddVideo').classList.add('hidden');
+            document.getElementById('tabHomeworks').classList.add('hidden');
+            document.getElementById('tabStudents').classList.add('hidden');
+
+            if (tab === 'videos') {
+                document.getElementById('tabVideos').classList.remove('hidden');
+                document.getElementById('menuVideos').classList.add('active');
+                renderVideos();
+            } else if (tab === 'chat') {
+                document.getElementById('tabChat').classList.remove('hidden');
+                document.getElementById('menuChat').classList.add('active');
+                if (state.currentUser && state.currentUser.isAdmin) {
+                    document.getElementById('adminChatSelector').classList.remove('hidden');
+                }
+                loadMessagesFromDB();
+            } else if (tab === 'addVideo') {
+                document.getElementById('tabAddVideo').classList.remove('hidden');
+                document.getElementById('menuAddVideo').classList.add('active');
+            } else if (tab === 'homeworks') {
+                document.getElementById('tabHomeworks').classList.remove('hidden');
+                document.getElementById('menuHomeworks').classList.add('active');
+                loadHomeworksFromDB();
+            } else if (tab === 'students') {
+                document.getElementById('tabStudents').classList.remove('hidden');
+                document.getElementById('menuStudents').classList.add('active');
+                renderPermissionsList();
+                renderStudentsTable();
+            }
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInputText');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (state.currentUser && !state.currentUser.isAdmin && !activeChatEmail) {
+                activeChatEmail = state.currentUser.email;
+            }
+
+            if (state.currentUser && state.currentUser.isAdmin && !activeChatEmail) {
+                alert('يرجى اختيار طالب أولاً لمحادثته.');
+                return;
+            }
+
+            const msgObj = {
+                id: Date.now().toString() + "_" + Math.random(),
+                studentEmail: state.currentUser.isAdmin ? activeChatEmail : state.currentUser.email,
+                sender: state.currentUser.isAdmin ? 'admin' : 'student',
+                senderName: state.currentUser.name,
+                text: text,
+                date: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+            };
+
+            saveMessageToDB(msgObj);
+            input.value = '';
+        }
+
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        }
+
+        function renderChatMessages() {
+            const box = document.getElementById('chatMessagesBox');
+            if (!box || !state.currentUser) return;
+            box.innerHTML = '';
+
+            let targetEmail = state.currentUser.isAdmin ? activeChatEmail : state.currentUser.email;
+            if (!targetEmail) {
+                box.innerHTML = '<p style="color:var(--text-muted); text-align:center;">اختر طالباً لبدء المحادثة.</p>';
+                return;
+            }
+
+            const chatMessages = state.messages.filter(m => m.studentEmail === targetEmail);
+
+            if (chatMessages.length === 0) {
+                box.innerHTML = '<p style="color:var(--text-muted); text-align:center; margin-top:20px;">لا توجد رسائل سابقة. ابدأ المحادثة الآن!</p>';
+                return;
+            }
+
+            chatMessages.forEach(m => {
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${m.sender === 'admin' ? 'admin' : 'student'}`;
+                bubble.innerHTML = `
+                    <span class="chat-sender">${m.senderName} - <small>${m.date}</small></span>
+                    <div>${m.text}</div>
+                `;
+                box.appendChild(bubble);
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function toggleVideoInputType() {
+            const type = document.getElementById('videoType').value;
+            if (type === 'youtube') {
+                document.getElementById('youtubeInputGroup').classList.remove('hidden');
+                document.getElementById('localInputGroup').classList.add('hidden');
+            } else {
+                document.getElementById('youtubeInputGroup').classList.add('hidden');
+                document.getElementById('localInputGroup').classList.remove('hidden');
+            }
+        }
+
+        function handleAddVideo(e) {
+            e.preventDefault();
+            const folder = document.getElementById('videoFolder').value.trim() || "عام";
+            const type = document.getElementById('videoType').value;
+
+            if (type === 'youtube') {
+                const title = document.getElementById('videoTitle').value;
+                const desc = document.getElementById('videoDesc').value;
+                let url = document.getElementById('videoUrl').value;
+                let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                let match = url.match(regExp);
+                
+                if (match && match[2].length == 11) {
+                    const newVideo = {
+                        id: Date.now().toString() + "_" + Math.random().toString(36).substr(2, 5),
+                        folder,
+                        title,
+                        desc,
+                        type: 'youtube',
+                        src: 'https://www.youtube.com/embed/' + match[2]
+                    };
+                    saveVideoToDB(newVideo, function() {
+                        alert('تم نشر الدرس وحفظه بنجاح!');
+                        document.getElementById('videoTitle').value = '';
+                        document.getElementById('videoDesc').value = '';
+                        document.getElementById('videoUrl').value = '';
+                        switchTab('videos');
+                    });
+                } else {
+                    alert('يرجى إدخال رابط يوتيوب صحيح');
+                }
+            } else {
+                const fileInput = document.getElementById('videoFolderFiles');
+                const files = fileInput.files;
+
+                if (!files || files.length === 0) {
+                    alert('يرجى اختيار مجلد أو فيديوهات من الجهاز');
+                    return;
+                }
+
+                const totalFiles = Array.from(files).filter(f => f.type.startsWith('video/') || f.name.match(/\.(mp4|mkv|webm|avi|mov)$/i));
+                if (totalFiles.length === 0) {
+                    alert('لم يتم العثور على ملفات فيديو صالحة داخل المجلد المحدد.');
+                    return;
+                }
+
+                let processedCount = 0;
+                totalFiles.forEach(file => {
+                    const newVideo = {
+                        id: Date.now().toString() + "_" + Math.random().toString(36).substr(2, 5),
+                        folder,
+                        title: file.name.replace(/\.[^/.]+$/, ""),
+                        desc: "فيديو محلي",
+                        type: 'local',
+                        fileData: file
+                    };
+
+                    saveVideoToDB(newVideo, function() {
+                        processedCount++;
+                        if (processedCount === totalFiles.length) {
+                            alert(`تم حفظ وتخزين ${totalFiles.length} فيديو بنجاح!`);
+                            fileInput.value = '';
+                            switchTab('videos');
+                        }
+                    });
+                });
+            }
+        }
+
+        function renderFoldersFilter() {
+            const bar = document.getElementById('folderFilterBar');
+            if (!bar) return;
+            const folders = [...new Set(state.videos.map(v => v.folder || "عام"))];
+            let html = `<div class="folder-chip ${currentFolderFilter === 'all' ? 'active' : ''}" onclick="filterFolder('all', this)">جميع الأقسام</div>`;
+            folders.forEach(f => {
+                html += `<div class="folder-chip ${currentFolderFilter === f ? 'active' : ''}" onclick="filterFolder('${f}', this)">📁 ${f}</div>`;
+            });
+            bar.innerHTML = html;
+        }
+
+        function filterFolder(folderName, element) {
+            currentFolderFilter = folderName;
+            document.querySelectorAll('.folder-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            renderVideos();
+        }
+
+        function renderVideos() {
+            const container = document.getElementById('videoList');
+            if (!container || !state.currentUser) return;
+            container.innerHTML = '';
+
+            let availableVideos = [];
+            if (state.currentUser.isAdmin) {
+                availableVideos = state.videos;
+            } else {
+                const allowedIds = state.currentUser.allowedVideos || [];
+                availableVideos = state.videos.filter(v => allowedIds.includes(v.id));
+            }
+
+            if (currentFolderFilter !== 'all') {
+                availableVideos = availableVideos.filter(v => (v.folder || "عام") === currentFolderFilter);
+            }
+
+            if (availableVideos.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted);">لا توجد فيديوهات متاحة في هذا القسم حالياً.</p>';
+                return;
+            }
+
+            availableVideos.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                
+                let playerHtml = '';
+                if (v.type === 'youtube') {
+                    playerHtml = `<iframe src="${v.src}" allowfullscreen></iframe>`;
+                } else if (v.fileData) {
+                    const videoBlobUrl = URL.createObjectURL(v.fileData);
+                    playerHtml = `<video src="${videoBlobUrl}" controls></video>`;
+                } else {
+                    playerHtml = `<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#ef4444; font-size:0.9rem;">تعذر تحميل الملف المحلي</div>`;
+                }
+
+                let studentHomeworkHtml = '';
+                if (!state.currentUser.isAdmin) {
+                    studentHomeworkHtml = `
+                        <div class="homework-box">
+                            <label><i class="fa-solid fa-file-arrow-up"></i> تسليم الواجب (سكرين شوت أو تسجيل شاشة):</label>
+                            <input type="file" accept="image/*,video/*" id="hw_file_${v.id}" onchange="submitHomework('${v.id}', '${v.title.replace(/'/g, "")}')" style="font-size: 0.8rem; color: #fff;">
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="video-player-container">${playerHtml}</div>
+                    <div class="video-info">
+                        <div>
+                            <span class="video-folder-tag"><i class="fa-solid fa-folder"></i> ${v.folder || "عام"}</span>
+                            <div class="video-title">${v.title}</div>
+                            <div class="video-desc">${v.desc || ''}</div>
+                        </div>
+                        ${studentHomeworkHtml}
+                        ${state.currentUser.isAdmin ? `<button onclick="deleteVideo('${v.id}')" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem; margin-top:10px;">حذف الدرس</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function submitHomework(videoId, videoTitle) {
+            const input = document.getElementById(`hw_file_${videoId}`);
+            if (input.files && input.files[0] && state.currentUser) {
+                const file = input.files[0];
+                const isVideo = file.type.startsWith('video/');
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const hwObj = {
+                        id: Date.now().toString() + "_" + Math.random(),
+                        studentName: state.currentUser.name,
+                        studentEmail: state.currentUser.email,
+                        videoTitle: videoTitle,
+                        fileType: isVideo ? 'video' : 'image',
+                        fileSrc: e.target.result,
+                        date: new Date().toLocaleString('ar-EG')
+                    };
+                    saveHomeworkToDB(hwObj);
+                    alert(`تم إرسال ${isVideo ? 'تسجيل الشاشة' : 'سكرين شوت'} الواجب بنجاح! أحسنت 🌟`);
+                    input.value = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderHomeworksTable() {
+            const tbody = document.getElementById('homeworksTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (state.homeworks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">لا توجد واجبات مرفوعة حتى الآن.</td></tr>`;
+                return;
+            }
+
+            state.homeworks.forEach(hw => {
+                const tr = document.createElement('tr');
+                let mediaHtml = '';
+                
+                if (hw.fileType === 'video') {
+                    mediaHtml = `<video src="${hw.fileSrc}" controls class="hw-preview-media"></video>`;
+                } else {
+                    mediaHtml = `<img src="${hw.fileSrc}" class="hw-preview-media" onclick="window.open('${hw.fileSrc}')" style="cursor:pointer;" title="اضغط لتكبير الصورة">`;
+                }
+
+                tr.innerHTML = `
+                    <td>${hw.studentName}<br><small style="color:var(--text-muted)">${hw.studentEmail}</small></td>
+                    <td>${hw.videoTitle}</td>
+                    <td>${mediaHtml}</td>
+                    <td>${hw.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteVideo(id) {
+            if (confirm('هل أنت تأكد من رغبتك في حذف هذا الدرس؟')) {
+                deleteVideoFromDB(id);
+            }
+        }
+
+        function renderPermissionsList() {
+            const container = document.getElementById('studentVideoPermissions');
+            if (!container) return;
+            container.innerHTML = '';
+            if (state.videos.length === 0) {
+                container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">قم بإضافة فيديوهات أولاً لتتمكن من تحديدها للطالب.</span>';
+                return;
+            }
+            state.videos.forEach(v => {
+                const item = document.createElement('label');
+                item.className = 'checkbox-item';
+                item.innerHTML = `
+                    <input type="checkbox" value="${v.id}" class="video-perm-check">
+                    <span>[${v.folder || "عام"}] ${v.title}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function handleAddStudent(e) {
+            e.preventDefault();
+            const name = document.getElementById('studentName').value;
+            const email = document.getElementById('studentEmail').value.trim();
+            const password = document.getElementById('studentPassword').value;
+
+            const selectedVideos = [];
+            document.querySelectorAll('.video-perm-check:checked').forEach(chk => {
+                selectedVideos.push(chk.value);
+            });
+
+            if (state.users.some(u => u.email === email) || email === ADMIN_EMAIL) {
+                alert('هذا البريد الإلكتروني مسجل بالفعل لطالب آخر.');
+                return;
+            }
+
+            state.users.push({
+                id: Date.now().toString(),
+                name,
+                email,
+                password,
+                allowedVideos: selectedVideos
+            });
+
+            saveData();
+            alert('تم إنشاء حساب الطالب بنجاح!');
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentEmail').value = '';
+            document.getElementById('studentPassword').value = '';
+            renderPermissionsList();
+            renderStudentsTable();
+            initAdminChatSelector();
+        }
+
+        function renderStudentsTable() {
+            const tbody = document.getElementById('studentsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            state.users.forEach((u, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>${(u.allowedVideos || []).length} درس</td>
+                    <td>
+                        <button onclick="deleteStudent(${index})" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">حذف</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteStudent(index) {
+            if (confirm('هل تريد حذف حساب هذا الطالب؟')) {
+                state.users.splice(index, 1);
+                saveData();
+                renderStudentsTable();
+                initAdminChatSelector();
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            const swCode = `self.addEventListener('fetch', function(e) {});`;
+            const blob = new Blob([swCode], { type: 'text/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl).catch(() => {});
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
