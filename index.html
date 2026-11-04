@@ -8,7 +8,7 @@
     <!-- الأيقونة الخاصة بالمتصفح (Favicon) -->
     <link rel="icon" type="image/png" href="https://img.icons8.com/color/96/source-code.png">
     
-    <!-- ربط تطبيق الـ PWA مع الأيقونة لضمان ظهورها عند التثبيت على الموبايل واللابتوب -->
+    <!-- ربط تطبيق الـ PWA مع الأيقونة لضمان ظهورها عند التثبيت -->
     <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%224A%20Coding%20School%22,%22short_name%22:%224A%20Coding%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#0f172a%22,%22theme_color%22:%22#0f172a%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/512/source-code.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -730,7 +730,7 @@
             messages: []
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 17);
+        const request = indexedDB.open("4ACodingSchoolDB", 18);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -741,6 +741,7 @@
             db = e.target.result;
             loadVideosFromDB();
             loadHomeworksFromDB();
+            loadMessagesFromDB();
         };
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -1159,8 +1160,16 @@
 
         function renderFoldersFilter() {
             const bar = document.getElementById('folderFilterBar');
-            if (!bar) return;
-            const folders = [...new Set(state.videos.map(v => v.folder || "عام"))];
+            if (!bar || !state.currentUser) return;
+
+            // تحديد الفيديوهات المتاحة للمستخدم الحالي (لإظهار المجلدات الخاصة بالفيديوهات المتاحة له فقط)
+            let userVideos = state.videos;
+            if (!state.currentUser.isAdmin) {
+                const allowedIds = state.currentUser.allowedVideos || [];
+                userVideos = state.videos.filter(v => allowedIds.includes(v.id));
+            }
+
+            const folders = [...new Set(userVideos.map(v => v.folder || "عام"))];
             let html = `<div class="folder-chip ${currentFolderFilter === 'all' ? 'active' : ''}" onclick="filterFolder('all', this)">جميع الأقسام</div>`;
             folders.forEach(f => {
                 html += `<div class="folder-chip ${currentFolderFilter === f ? 'active' : ''}" onclick="filterFolder('${f}', this)">📁 ${f}</div>`;
