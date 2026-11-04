@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4A Coding School</title>
-    <!-- أيقونة المنصة البرمجية المميزة -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><path d='M30 35 L15 50 L30 65' stroke='%2338bdf8' stroke-width='8' fill='none' stroke-linecap='round'/><path d='M70 35 L85 50 L70 65' stroke='%2338bdf8' stroke-width='8' fill='none' stroke-linecap='round'/><text x='50' y='62' font-family='sans-serif' font-weight='bold' font-size='32' fill='%23ffffff' text-anchor='middle'>4A</text></svg>">
-    <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%224A%20Coding%20School%22,%22short_name%22:%224A%20Coding%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#0f172a%22,%22theme_color%22:%22#0f172a%22}">
+    
+    <!-- الأيقونة الخاصة بالمتصفح (Favicon) -->
+    <link rel="icon" type="image/png" href="https://img.icons8.com/color/96/source-code.png">
+    
+    <!-- ربط تطبيق الـ PWA مع الأيقونة لضمان ظهورها عند التثبيت على الموبايل واللابتوب -->
+    <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%224A%20Coding%20School%22,%22short_name%22:%224A%20Coding%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#0f172a%22,%22theme_color%22:%22#0f172a%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/512/source-code.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -726,7 +730,7 @@
             messages: []
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 16);
+        const request = indexedDB.open("4ACodingSchoolDB", 17);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -756,7 +760,7 @@
                     deferredPrompt = null;
                 });
             } else {
-                alert('تثبيت التطبيق متاح من قائمة المتصفح.');
+                alert('تثبيت التطبيق متاح من قائمة المتصفح (Add to Home Screen / Install App).');
             }
         }
 
