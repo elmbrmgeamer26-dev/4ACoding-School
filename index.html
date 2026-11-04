@@ -659,29 +659,25 @@
 
     <script>
         const SUPER_ADMIN_EMAIL = "Amirstudent1@student.com";
-        const SUPER_ADMIN_PASS = "123456789"; // كلمة مرور المدير الأعلى (يمكنك تغييرها)
+        const SUPER_ADMIN_PASS = "123456";
 
         let deferredPrompt;
         let db;
         let currentFolderFilter = 'all';
         let activeChatEmail = null;
 
-        // إجبار تسجيل الخروج عند تحديث الصفحة أو الدخول للرابط من جديد
-        window.addEventListener('beforeunload', () => {
-            // يمكن الاحتفاظ بحالة الجلسة أو تصفيرها حسب الرغبة، هنا نقوم بإلغاء الجلسة عند إغلاق التبويب إذا أردت، 
-            // ولكن بناءً على طلبك أن الريفرش يطلب إيميل، سنقوم بمسح الجلسة النشطة عند إعادة التحميل:
-        });
+        // تصفير جلسة الدخول عند عمل Refresh لضمان طلب الإيميل في كل مرة
         sessionStorage.removeItem('4a_activeSession');
 
         let state = {
-            currentUser: JSON.parse(sessionStorage.getItem('4a_activeSession')) || null,
+            currentUser: null,
             users: JSON.parse(localStorage.getItem('4a_users')) || [],
             videos: [],
             homeworks: [],
             messages: []
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 12);
+        const request = indexedDB.open("4ACodingSchoolDB", 13);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -783,18 +779,16 @@
             };
         }
 
-        // التحقق الدقيق من البريد الإلكتروني وكلمة المرور
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
-            // التحقق من حساب المدير الأعلى
             if (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
                 if (password === SUPER_ADMIN_PASS) {
                     state.currentUser = { 
                         email: SUPER_ADMIN_EMAIL, 
-                        name: "Amir Elnjar(Onwer)", 
+                        name: "أمير النجار (المدير الأعلى)", 
                         isSuperAdmin: true, 
                         isAdmin: true, 
                         permissions: ['videos', 'homeworks', 'chat', 'students'] 
@@ -803,12 +797,11 @@
                     initApp();
                     return;
                 } else {
-                    alert('عذراً، كلمة المرور الخاصة بالمدير غير صحيحة!');
+                    alert('كلمة المرور الخاصة بالمدير غير صحيحة!');
                     return;
                 }
             }
 
-            // البحث عن مستخدم مطابق بالبريد الإلكتروني وكلمة المرور معاً
             const user = state.users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
             
             if (user) {
@@ -820,7 +813,7 @@
                 saveSessionData();
                 initApp();
             } else {
-                alert('خطأ في تسجيل الدخول! يرجى التأكد من كتابة البريد الإلكتروني وكلمة المرور بشكل صحيح.');
+                alert('خطأ في البريد الإلكتروني أو كلمة المرور! تأكد من صحة البيانات.');
             }
         }
 
@@ -831,7 +824,9 @@
         }
 
         function initApp() {
-            if (state.currentUser && state.currentUser.email) {
+            const activeSession = JSON.parse(sessionStorage.getItem('4a_activeSession'));
+            if (activeSession && activeSession.email) {
+                state.currentUser = activeSession;
                 document.getElementById('authSection').classList.add('hidden');
                 document.getElementById('dashboardSection').classList.remove('hidden');
                 document.getElementById('headerUserInfo').classList.remove('hidden');
