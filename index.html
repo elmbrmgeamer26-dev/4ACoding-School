@@ -467,9 +467,10 @@
         </div>
     </header>
 
+    <!-- شاشة تسجيل الدخول الإجبارية -->
     <div class="auth-container" id="authSection">
         <div class="auth-card">
-            <h2>تسجيل الدخول</h2>
+            <h2>تسجيل الدخول الإجباري</h2>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>البريد الإلكتروني</label>
@@ -479,28 +480,29 @@
                     <label>كلمة المرور</label>
                     <input type="password" id="loginPassword" required placeholder="******">
                 </div>
-                <button type="submit" class="btn-primary">دخول</button>
+                <button type="submit" class="btn-primary">دخول للمنصة</button>
             </form>
         </div>
     </div>
 
+    <!-- لوحة التحكم الرئيسية -->
     <div class="dashboard hidden" id="dashboardSection">
         <div class="sidebar">
             <ul class="sidebar-menu">
                 <li id="menuVideos" class="active" onclick="switchTab('videos')">
                     <i class="fa-solid fa-play"></i> الدروس والتطبيقات
                 </li>
-                <li id="menuChat" onclick="switchTab('chat')">
+                <li id="menuChat" class="permission-check" data-perm="chat" onclick="switchTab('chat')">
                     <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle">تواصل مع المعلم</span>
                 </li>
-                <li id="menuAddVideo" class="admin-only hidden" onclick="switchTab('addVideo')">
+                <li id="menuAddVideo" class="permission-check" data-perm="videos" onclick="switchTab('addVideo')">
                     <i class="fa-solid fa-folder-plus"></i> رفع دروس وفيديوهات
                 </li>
-                <li id="menuHomeworks" class="admin-only hidden" onclick="switchTab('homeworks')">
+                <li id="menuHomeworks" class="permission-check" data-perm="homeworks" onclick="switchTab('homeworks')">
                     <i class="fa-solid fa-clipboard-check"></i> متابعة واجبات الطلاب
                 </li>
-                <li id="menuStudents" class="admin-only hidden" onclick="switchTab('students')">
-                    <i class="fa-solid fa-users"></i> إدارة الطلاب
+                <li id="menuStudents" class="permission-check" data-perm="students" onclick="switchTab('students')">
+                    <i class="fa-solid fa-users"></i> إدارة المستخدمين
                 </li>
             </ul>
         </div>
@@ -593,55 +595,76 @@
                 </table>
             </div>
 
-            <!-- قسم إدارة الطلاب -->
+            <!-- قسم إدارة المستخدمين (الطلاب والمشرفين الصلاحيات) -->
             <div id="tabStudents" class="hidden">
-                <h2><i class="fa-solid fa-user-plus"></i> إضافة حساب طالب جديد</h2>
+                <h2><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد (طالب أو مشرف مساعد)</h2>
                 <div style="max-width: 600px; margin-top: 20px;">
-                    <form onsubmit="handleAddStudent(event)">
+                    <form onsubmit="handleAddUser(event)">
                         <div class="form-group">
-                            <label>اسم الطالب</label>
-                            <input type="text" id="studentName" required placeholder="اسم الطالب">
+                            <label>الاسم</label>
+                            <input type="text" id="userNameInput" required placeholder="اسم المستخدم">
                         </div>
                         <div class="form-group">
-                            <label>البريد الإلكتروني للطالب</label>
-                            <input type="email" id="studentEmail" required placeholder="student@school.com">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" id="userEmailInput" required placeholder="user@school.com">
                         </div>
                         <div class="form-group">
                             <label>كلمة المرور</label>
-                            <input type="password" id="studentPassword" required placeholder="******">
+                            <input type="password" id="userPasswordInput" required placeholder="******">
                         </div>
                         <div class="form-group">
-                            <label>حدد الفيديوهات المسموح مشاهدتها:</label>
+                            <label>نوع الحساب:</label>
+                            <select id="userRoleSelect" onchange="toggleRoleOptions()">
+                                <option value="student">طالب (Student)</option>
+                                <option value="admin">مشرف مساعد (Sub-Admin)</option>
+                            </select>
+                        </div>
+
+                        <!-- صلاحيات المشرف المساعد -->
+                        <div class="form-group hidden" id="adminPermissionsGroup">
+                            <label>حدد صلاحيات هذا المشرف:</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item"><input type="checkbox" value="videos" class="admin-perm-box" checked> إدارة ورفع الفيديوهات</label>
+                                <label class="checkbox-item"><input type="checkbox" value="homeworks" class="admin-perm-box" checked> مراجعة ومتابعة الواجبات</label>
+                                <label class="checkbox-item"><input type="checkbox" value="chat" class="admin-perm-box" checked> الرد على محادثات الطلاب</label>
+                                <label class="checkbox-item"><input type="checkbox" value="students" class="admin-perm-box"> إدارة المستخدمين</label>
+                            </div>
+                        </div>
+
+                        <!-- فيديوهات الطالب -->
+                        <div class="form-group" id="studentVideosGroup">
+                            <label>حدد الفيديوهات المسموح مشاهدتها للطالب:</label>
                             <div class="checkbox-group" id="studentVideoPermissions"></div>
                         </div>
+
                         <button type="submit" class="btn-primary">إنشاء الحساب وتعيين الصلاحيات</button>
                     </form>
                 </div>
 
-                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-gear"></i> قائمة الطلاب المسجلين</h2>
+                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-gear"></i> قائمة المستخدمين المسجلين</h2>
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>الاسم</th>
                             <th>البريد الإلكتروني</th>
-                            <th>الفيديوهات المتاحة</th>
+                            <th>نوع الحساب</th>
                             <th>إجراءات</th>
                         </tr>
                     </thead>
-                    <tbody id="studentsTableBody"></tbody>
+                    <tbody id="usersTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <script>
-        const ADMIN_EMAIL = "Amirstudent1@student.com";
+        const SUPER_ADMIN_EMAIL = "Amirstudent1@student.com";
         let deferredPrompt;
         let db;
         let currentFolderFilter = 'all';
         let activeChatEmail = null;
 
-        const request = indexedDB.open("4ACodingSchoolDB", 8);
+        const request = indexedDB.open("4ACodingSchoolDB", 9);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -753,16 +776,26 @@
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
-            if (email === ADMIN_EMAIL) {
-                state.currentUser = { email: ADMIN_EMAIL, name: "أمير النجار (المسؤول)", isAdmin: true };
+            if (email === SUPER_ADMIN_EMAIL) {
+                state.currentUser = { 
+                    email: SUPER_ADMIN_EMAIL, 
+                    name: "أمير النجار (المدير الأعلى)", 
+                    isSuperAdmin: true, 
+                    isAdmin: true, 
+                    permissions: ['videos', 'homeworks', 'chat', 'students'] 
+                };
                 saveData();
                 initApp();
                 return;
             }
 
-            const student = state.users.find(u => u.email === email && u.password === password);
-            if (student) {
-                state.currentUser = { ...student, isAdmin: false };
+            const user = state.users.find(u => u.email === email && u.password === password);
+            if (user) {
+                state.currentUser = { 
+                    ...user, 
+                    isAdmin: user.role === 'admin',
+                    isSuperAdmin: false
+                };
                 saveData();
                 initApp();
             } else {
@@ -783,20 +816,12 @@
                 document.getElementById('headerUserInfo').classList.remove('hidden');
                 document.getElementById('userNameDisplay').textContent = state.currentUser.name;
 
-                if (state.currentUser.isAdmin) {
-                    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-                    document.getElementById('chatMenuTitle').textContent = "رسائل الطلاب";
-                    initAdminChatSelector();
-                } else {
-                    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-                    document.getElementById('chatMenuTitle').textContent = "تواصل مع المعلم";
-                    activeChatEmail = state.currentUser.email;
-                }
+                applyUserPermissions();
 
                 loadVideosFromDB();
                 loadHomeworksFromDB();
                 loadMessagesFromDB();
-                renderStudentsTable();
+                renderUsersTable();
             } else {
                 document.getElementById('authSection').classList.remove('hidden');
                 document.getElementById('dashboardSection').classList.add('hidden');
@@ -804,22 +829,64 @@
             }
         }
 
+        function applyUserPermissions() {
+            const user = state.currentUser;
+            const menuItems = document.querySelectorAll('.sidebar-menu li');
+            
+            menuItems.forEach(item => {
+                if (item.id === 'menuVideos') {
+                    item.classList.remove('hidden');
+                    return;
+                }
+
+                const perm = item.getAttribute('data-perm');
+                if (user.isSuperAdmin) {
+                    item.classList.remove('hidden');
+                } else if (user.isAdmin) {
+                    if (user.permissions && user.permissions.includes(perm)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                } else {
+                    if (perm === 'chat') {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                }
+            });
+
+            if (user.isAdmin) {
+                document.getElementById('chatMenuTitle').textContent = "رسائل الطلاب";
+                initAdminChatSelector();
+            } else {
+                document.getElementById('chatMenuTitle').textContent = "تواصل مع المعلم";
+                activeChatEmail = user.email;
+            }
+
+            if (!user.isAdmin) {
+                switchTab('videos');
+            }
+        }
+
         function initAdminChatSelector() {
             const select = document.getElementById('chatStudentSelect');
             if (!select) return;
             select.innerHTML = '';
-            if (state.users.length === 0) {
+            const students = state.users.filter(u => u.role === 'student');
+            if (students.length === 0) {
                 select.innerHTML = '<option value="">لا توجد طلاب مسجلين بعد</option>';
                 return;
             }
-            state.users.forEach(u => {
+            students.forEach(u => {
                 const opt = document.createElement('option');
                 opt.value = u.email;
                 opt.textContent = `${u.name} (${u.email})`;
                 select.appendChild(opt);
             });
-            if (state.users.length > 0 && !activeChatEmail) {
-                activeChatEmail = state.users[0].email;
+            if (students.length > 0 && !activeChatEmail) {
+                activeChatEmail = students[0].email;
             }
         }
 
@@ -861,7 +928,20 @@
                 document.getElementById('tabStudents').classList.remove('hidden');
                 document.getElementById('menuStudents').classList.add('active');
                 renderPermissionsList();
-                renderStudentsTable();
+                renderUsersTable();
+            }
+        }
+
+        function toggleRoleOptions() {
+            const role = document.getElementById('userRoleSelect').value;
+            const adminGroup = document.getElementById('adminPermissionsGroup');
+            const studentGroup = document.getElementById('studentVideosGroup');
+            if (role === 'admin') {
+                adminGroup.classList.remove('hidden');
+                studentGroup.classList.add('hidden');
+            } else {
+                adminGroup.classList.add('hidden');
+                studentGroup.classList.remove('hidden');
             }
         }
 
@@ -1166,42 +1246,53 @@
             });
         }
 
-        function handleAddStudent(e) {
+        function handleAddUser(e) {
             e.preventDefault();
-            const name = document.getElementById('studentName').value;
-            const email = document.getElementById('studentEmail').value.trim();
-            const password = document.getElementById('studentPassword').value;
+            const name = document.getElementById('userNameInput').value;
+            const email = document.getElementById('userEmailInput').value.trim();
+            const password = document.getElementById('userPasswordInput').value;
+            const role = document.getElementById('userRoleSelect').value;
 
-            const selectedVideos = [];
-            document.querySelectorAll('.video-perm-check:checked').forEach(chk => {
-                selectedVideos.push(chk.value);
-            });
-
-            if (state.users.some(u => u.email === email) || email === ADMIN_EMAIL) {
-                alert('هذا البريد الإلكتروني مسجل بالفعل لطالب آخر.');
+            if (state.users.some(u => u.email === email) || email === SUPER_ADMIN_EMAIL) {
+                alert('هذا البريد الإلكتروني مسجل بالفعل لمستخدم آخر.');
                 return;
             }
 
-            state.users.push({
+            let newUser = {
                 id: Date.now().toString(),
                 name,
                 email,
                 password,
-                allowedVideos: selectedVideos
-            });
+                role
+            };
 
+            if (role === 'admin') {
+                const permissions = [];
+                document.querySelectorAll('.admin-perm-box:checked').forEach(box => {
+                    permissions.push(box.value);
+                });
+                newUser.permissions = permissions;
+            } else {
+                const allowedVideos = [];
+                document.querySelectorAll('.video-perm-check:checked').forEach(chk => {
+                    allowedVideos.push(chk.value);
+                });
+                newUser.allowedVideos = allowedVideos;
+            }
+
+            state.users.push(newUser);
             saveData();
-            alert('تم إنشاء حساب الطالب بنجاح!');
-            document.getElementById('studentName').value = '';
-            document.getElementById('studentEmail').value = '';
-            document.getElementById('studentPassword').value = '';
+            alert('تم إنشاء الحساب بنجاح!');
+            document.getElementById('userNameInput').value = '';
+            document.getElementById('userEmailInput').value = '';
+            document.getElementById('userPasswordInput').value = '';
             renderPermissionsList();
-            renderStudentsTable();
+            renderUsersTable();
             initAdminChatSelector();
         }
 
-        function renderStudentsTable() {
-            const tbody = document.getElementById('studentsTableBody');
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
             if (!tbody) return;
             tbody.innerHTML = '';
             state.users.forEach((u, index) => {
@@ -1209,20 +1300,20 @@
                 tr.innerHTML = `
                     <td>${u.name}</td>
                     <td>${u.email}</td>
-                    <td>${(u.allowedVideos || []).length} درس</td>
+                    <td>${u.role === 'admin' ? '<span style="color:var(--accent);">مشرف مساعد</span>' : 'طالب'}</td>
                     <td>
-                        <button onclick="deleteStudent(${index})" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">حذف</button>
+                        <button onclick="deleteUser(${index})" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">حذف</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function deleteStudent(index) {
-            if (confirm('هل تريد حذف حساب هذا الطالب؟')) {
+        function deleteUser(index) {
+            if (confirm('هل تريد حذف هذا المستخدم؟')) {
                 state.users.splice(index, 1);
                 saveData();
-                renderStudentsTable();
+                renderUsersTable();
                 initAdminChatSelector();
             }
         }
