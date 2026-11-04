@@ -621,7 +621,10 @@
                     <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle">تواصل مع المعلم</span>
                 </li>
                 <li id="menuAddVideo" class="admin-only hidden" onclick="switchTab('addVideo')">
-                    <i class="fa-solid fa-folder-plus"></i> رفع دروس وفيديوهات
+                    <i class="fa-solid fa-folder-plus"></i> رفع مجلد فيديوهات
+                </li>
+                <li id="menuAddAttachments" class="admin-only hidden" onclick="switchTab('addAttachments')">
+                    <i class="fa-solid fa-paperclip"></i> إضافة ملحقات للسيشنات
                 </li>
                 <li id="menuHomeworks" class="admin-only hidden" onclick="switchTab('homeworks')">
                     <i class="fa-solid fa-clipboard-check"></i> متابعة واجبات الطلاب
@@ -668,59 +671,42 @@
                 </div>
             </div>
 
+            <!-- رفع مجلد الفيديوهات (كما طلبته تماماً) -->
             <div id="tabAddVideo" class="hidden">
-                <h2><i class="fa-solid fa-cloud-arrow-up"></i> رفع فيديو مع ملحقات (PowerPoint وصور)</h2>
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> رفع مجلد فيديوهات كامل (Folder)</h2>
                 <div style="max-width: 600px; margin-top: 20px;">
-                    <form onsubmit="handleAddVideo(event)">
+                    <form onsubmit="handleAddVideoFolder(event)">
                         <div class="form-group">
                             <label>اسم المجلد أو القسم (Blocks أو Python)</label>
                             <input type="text" id="videoFolder" required placeholder="مثال: Blocks أو Python">
                         </div>
                         <div class="form-group">
-                            <label>مصدر الفيديو</label>
-                            <select id="videoType" onchange="toggleVideoInputType()">
-                                <option value="youtube">رابط من YouTube</option>
-                                <option value="local">فيديو من الجهاز</option>
-                            </select>
+                            <label>اختر مجلد الفيديوهات الكامل من جهازك:</label>
+                            <input type="file" id="videoFolderFiles" accept="video/*" webkitdirectory directory multiple required style="color:#fff;">
                         </div>
+                        <button type="submit" class="btn-primary">رفع وحفظ كل الفيديوهات</button>
+                    </form>
+                </div>
+            </div>
 
-                        <div id="youtubeInputGroup">
-                            <div class="form-group">
-                                <label>عنوان الدرس</label>
-                                <input type="text" id="videoTitle" placeholder="مثال: Session 1">
-                            </div>
-                            <div class="form-group">
-                                <label>وصف مختصر</label>
-                                <textarea id="videoDesc" rows="2" placeholder="شرح مبسط..."></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>رابط اليوتيوب (URL)</label>
-                                <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
-                            </div>
+            <!-- قسم إضافة وتعديل ملحقات السيشنات (PowerPoint وصور) -->
+            <div id="tabAddAttachments" class="hidden">
+                <h2><i class="fa-solid fa-file-circle-plus"></i> إضافة ملحقات (PowerPoint & صور) لسيشن معين</h2>
+                <div style="max-width: 600px; margin-top: 20px; background:var(--card-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
+                    <form onsubmit="handleSaveAttachments(event)">
+                        <div class="form-group">
+                            <label>اختر الدرس / السيشن:</label>
+                            <select id="targetVideoSelect" required style="background:var(--bg-dark); color:white; padding:12px; border-radius:6px; border:1px solid var(--border-color); width:100%;"></select>
                         </div>
-
-                        <div class="hidden" id="localInputGroup">
-                            <div class="form-group">
-                                <label>اختر ملف الفيديو:</label>
-                                <input type="file" id="videoLocalFile" accept="video/*">
-                            </div>
+                        <div class="form-group">
+                            <label>ملفات PowerPoint أو PDF:</label>
+                            <input type="file" id="attachPptFiles" accept=".ppt, .pptx, .pdf" multiple style="font-size:0.85rem; color:#fff;">
                         </div>
-
-                        <div class="form-group" style="background: rgba(56, 189, 248, 0.05); padding: 15px; border-radius: 8px; border: 1px dashed var(--accent);">
-                            <label style="color: var(--accent); font-weight: bold;"><i class="fa-solid fa-paperclip"></i> إرفاق ملحقات الدرس (PowerPoint & صور):</label>
-                            
-                            <div style="margin-top: 10px;">
-                                <label style="font-size: 0.85rem;">ملفات PowerPoint أو PDF:</label>
-                                <input type="file" id="lessonPptFiles" accept=".ppt, .pptx, .pdf" multiple style="font-size: 0.85rem; color:#fff;">
-                            </div>
-
-                            <div style="margin-top: 12px;">
-                                <label style="font-size: 0.85rem;">صور توضيحية للدرس:</label>
-                                <input type="file" id="lessonImageFiles" accept="image/*" multiple style="font-size: 0.85rem; color:#fff;">
-                            </div>
+                        <div class="form-group">
+                            <label>صور توضيحية:</label>
+                            <input type="file" id="attachImgFiles" accept="image/*" multiple style="font-size:0.85rem; color:#fff;">
                         </div>
-
-                        <button type="submit" class="btn-primary" id="saveVideoBtn">نشر وحفظ الدرس مع ملحقاته</button>
+                        <button type="submit" class="btn-primary">حفظ الملحقات لهذا السيشن</button>
                     </form>
                 </div>
             </div>
@@ -802,11 +788,11 @@
                         <div class="form-group hidden" id="adminPermissionsGroup">
                             <label>حدد صلاحيات هذا المشرف:</label>
                             <div class="checkbox-group">
-                                <label class="checkbox-item"><input type="checkbox" value="videos" class="admin-perm-box" checked> إدارة ورفع الفيديوهات</label>
-                                <label class="checkbox-item"><input type="checkbox" value="homeworks" class="admin-perm-box" checked> مراجعة ومتابعة الواجبات</label>
+                                <label class="checkbox-item"><input type="checkbox" value="videos" class="admin-perm-box" checked> رفع الفيديوهات</label>
+                                <label class="checkbox-item"><input type="checkbox" value="homeworks" class="admin-perm-box" checked> متابعة الواجبات</label>
                                 <label class="checkbox-item"><input type="checkbox" value="chat" class="admin-perm-box" checked> الرد على محادثات الطلاب</label>
                                 <label class="checkbox-item"><input type="checkbox" value="students" class="admin-perm-box"> إدارة المستخدمين</label>
-                                <label class="checkbox-item"><input type="checkbox" value="completions" class="admin-perm-box" checked> متابعة إشعارات إنهاء الكورسات</label>
+                                <label class="checkbox-item"><input type="checkbox" value="completions" class="admin-perm-box" checked> إشعارات إنهاء الكورسات</label>
                                 <label class="checkbox-item"><input type="checkbox" value="groups" class="admin-perm-box" checked> إدارة المجموعات</label>
                             </div>
                         </div>
@@ -874,7 +860,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 24);
+        const request = indexedDB.open("4ACodingSchoolDB", 25);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -939,6 +925,7 @@
                 renderFoldersFilter();
                 renderVideos();
                 renderPermissionsList();
+                renderAttachmentsVideoSelect();
             };
         }
 
@@ -1012,7 +999,7 @@
                         name: "أمير النجار (المدير الأعلى)", 
                         isSuperAdmin: true, 
                         isAdmin: true, 
-                        permissions: ['videos', 'homeworks', 'chat', 'students', 'completions', 'groups'] 
+                        permissions: ['videos', 'addAttachments', 'homeworks', 'chat', 'students', 'completions', 'groups'] 
                     };
                     saveSessionData();
                     initApp();
@@ -1144,6 +1131,7 @@
             document.getElementById('tabVideos').classList.add('hidden');
             document.getElementById('tabChat').classList.add('hidden');
             document.getElementById('tabAddVideo').classList.add('hidden');
+            document.getElementById('tabAddAttachments').classList.add('hidden');
             document.getElementById('tabHomeworks').classList.add('hidden');
             document.getElementById('tabStudents').classList.add('hidden');
             const compTab = document.getElementById('tabCompletions');
@@ -1165,6 +1153,10 @@
             } else if (tab === 'addVideo') {
                 document.getElementById('tabAddVideo').classList.remove('hidden');
                 document.getElementById('menuAddVideo').classList.add('active');
+            } else if (tab === 'addAttachments') {
+                document.getElementById('tabAddAttachments').classList.remove('hidden');
+                document.getElementById('menuAddAttachments').classList.add('active');
+                renderAttachmentsVideoSelect();
             } else if (tab === 'homeworks') {
                 document.getElementById('tabHomeworks').classList.remove('hidden');
                 document.getElementById('menuHomeworks').classList.add('active');
@@ -1259,89 +1251,91 @@
             box.scrollTop = box.scrollHeight;
         }
 
-        function toggleVideoInputType() {
-            const type = document.getElementById('videoType').value;
-            if (type === 'youtube') {
-                document.getElementById('youtubeInputGroup').classList.remove('hidden');
-                document.getElementById('localInputGroup').classList.add('hidden');
-            } else {
-                document.getElementById('youtubeInputGroup').classList.add('hidden');
-                document.getElementById('localInputGroup').classList.remove('hidden');
-            }
-        }
-
-        function handleAddVideo(e) {
+        // رفع مجلد الفيديوهات واستخراج كافة الفيديوهات بدقة
+        function handleAddVideoFolder(e) {
             e.preventDefault();
             const folder = document.getElementById('videoFolder').value.trim() || "عام";
-            const type = document.getElementById('videoType').value;
+            const fileInput = document.getElementById('videoFolderFiles');
+            const files = fileInput.files;
 
-            const pptInput = document.getElementById('lessonPptFiles');
-            const imgInput = document.getElementById('lessonImageFiles');
+            if (!files || files.length === 0) {
+                alert('يرجى اختيار مجلد يحتوي على فيديوهات');
+                return;
+            }
+
+            const videoFiles = Array.from(files).filter(f => f.type.startsWith('video/') || f.name.match(/\.(mp4|mkv|webm|avi|mov)$/i));
+            if (videoFiles.length === 0) {
+                alert('لم يتم العثور على ملفات فيديو صالحة داخل المجلد.');
+                return;
+            }
+
+            let processedCount = 0;
+            videoFiles.forEach(file => {
+                const newVideo = {
+                    id: Date.now().toString() + "_" + Math.random().toString(36).substr(2, 5),
+                    folder,
+                    title: file.name.replace(/\.[^/.]+$/, ""),
+                    desc: "فيديو محلي",
+                    type: 'local',
+                    fileData: file,
+                    pptFiles: [],
+                    imageFiles: []
+                };
+
+                saveVideoToDB(newVideo, function() {
+                    processedCount++;
+                    if (processedCount === videoFiles.length) {
+                        alert(`تم استخراج وحفظ ${videoFiles.length} فيديو من المجلد بنجاح!`);
+                        fileInput.value = '';
+                        switchTab('videos');
+                    }
+                });
+            });
+        }
+
+        // إضافة ملحقات (PowerPoint وصور) لسيشن محدد
+        function renderAttachmentsVideoSelect() {
+            const select = document.getElementById('targetVideoSelect');
+            if (!select) return;
+            select.innerHTML = '';
+            if (state.videos.length === 0) {
+                select.innerHTML = '<option value="">لا توجد سيشنات مرفوعة بعد</option>';
+                return;
+            }
+            state.videos.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id;
+                opt.textContent = `[${v.folder || "عام"}] ${v.title}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function handleSaveAttachments(e) {
+            e.preventDefault();
+            const videoId = document.getElementById('targetVideoSelect').value;
+            const pptInput = document.getElementById('attachPptFiles');
+            const imgInput = document.getElementById('attachImgFiles');
+
+            const videoObj = state.videos.find(v => v.id === videoId);
+            if (!videoObj) {
+                alert('يرجى اختيار سيشن صحيح.');
+                return;
+            }
 
             readFilesAsDataURLs(pptInput.files, function(pptList) {
                 readFilesAsDataURLs(imgInput.files, function(imgList) {
-                    
-                    if (type === 'youtube') {
-                        const title = document.getElementById('videoTitle').value;
-                        const desc = document.getElementById('videoDesc').value;
-                        let url = document.getElementById('videoUrl').value;
-                        let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                        let match = url.match(regExp);
-                        
-                        if (match && match[2].length == 11) {
-                            const newVideo = {
-                                id: Date.now().toString() + "_" + Math.random().toString(36).substr(2, 5),
-                                folder,
-                                title,
-                                desc,
-                                type: 'youtube',
-                                src: 'https://www.youtube.com/embed/' + match[2],
-                                pptFiles: pptList,
-                                imageFiles: imgList
-                            };
-                            saveVideoToDB(newVideo, function() {
-                                alert('تم نشر الدرس وملحقاته بنجاح!');
-                                document.getElementById('videoTitle').value = '';
-                                document.getElementById('videoDesc').value = '';
-                                document.getElementById('videoUrl').value = '';
-                                pptInput.value = '';
-                                imgInput.value = '';
-                                switchTab('videos');
-                            });
-                        } else {
-                            alert('يرجى إدخال رابط يوتيوب صحيح');
-                        }
-                    } else {
-                        const localFile = document.getElementById('videoLocalFile').files[0];
-                        if (!localFile) {
-                            alert('يرجى اختيار ملف فيديو محلي.');
-                            return;
-                        }
+                    if (!videoObj.pptFiles) videoObj.pptFiles = [];
+                    if (!videoObj.imageFiles) videoObj.imageFiles = [];
 
-                        const reader = new FileReader();
-                        reader.onload = function(evt) {
-                            const newVideo = {
-                                id: Date.now().toString() + "_" + Math.random().toString(36).substr(2, 5),
-                                folder,
-                                title: localFile.name.replace(/\.[^/.]+$/, ""),
-                                desc: "فيديو محلي",
-                                type: 'local',
-                                fileData: localFile,
-                                pptFiles: pptList,
-                                imageFiles: imgList
-                            };
+                    videoObj.pptFiles = videoObj.pptFiles.concat(pptList);
+                    videoObj.imageFiles = videoObj.imageFiles.concat(imgList);
 
-                            saveVideoToDB(newVideo, function() {
-                                alert('تم حفظ وتخزين الدرس مع ملفاته بنجاح!');
-                                document.getElementById('videoLocalFile').value = '';
-                                pptInput.value = '';
-                                imgInput.value = '';
-                                switchTab('videos');
-                            });
-                        };
-                        reader.readAsDataURL(localFile);
-                    }
-
+                    saveVideoToDB(videoObj, function() {
+                        alert('تم إرفاق وحفظ الملحقات للسيشن بنجاح!');
+                        pptInput.value = '';
+                        imgInput.value = '';
+                        switchTab('videos');
+                    });
                 });
             });
         }
@@ -1382,7 +1376,6 @@
 
             const folders = [...new Set(userVideos.map(v => v.folder || "عام"))];
             
-            // إذا لم يتم تحديد قسم مسبقاً، اختر أول قسم متاح تلقائياً (إلغاء جميع الاقسام نهائياً)
             if (!currentFolderFilter || !folders.includes(currentFolderFilter)) {
                 currentFolderFilter = folders.length > 0 ? folders[0] : null;
             }
@@ -1674,7 +1667,7 @@
             if (!container) return;
             container.innerHTML = '';
             if (state.videos.length === 0) {
-                container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">قم بإضافة فيديوهات أولاً لتتمكن من تحديدها للطالب.</span>';
+                container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">قم برفع مجلد فيديوهات أولاً لتتمكن من تحديدها للطالب.</span>';
                 return;
             }
             state.videos.forEach(v => {
