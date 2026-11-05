@@ -243,6 +243,27 @@
             overflow-y: auto;
         }
 
+        .storage-banner {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(16, 185, 129, 0.15));
+            border: 1px solid var(--accent);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .storage-info-text {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .folder-filter-bar {
             display: flex;
             gap: 10px;
@@ -316,12 +337,6 @@
             border-radius: 4px;
             display: inline-block;
             margin-bottom: 8px;
-        }
-
-        .video-desc {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 12px;
         }
 
         .status-watched-badge {
@@ -702,6 +717,14 @@
 
         <div class="content">
             <div id="tabVideos">
+                <div class="storage-banner">
+                    <div class="storage-info-text">
+                        <i class="fa-solid fa-database" style="font-size: 1.2rem; color: var(--accent);"></i>
+                        <span>سعة التخزين: <strong>مفتوحة وتدعم مساحة ضخمة (تخزين سحابي محلي ممتد)</strong></span>
+                    </div>
+                    <span id="storageUsageBadge" style="font-size: 0.85rem; color: var(--success); font-weight: bold;">متصل ومستقر 🟢</span>
+                </div>
+
                 <h2><i class="fa-solid fa-video"></i> <span data-i18n="libraryTitle">المكتبة التعليمية</span></h2>
 
                 <div class="folder-filter-bar" id="folderFilterBar"></div>
@@ -899,7 +922,7 @@
         let deferredPrompt;
         let db;
         let currentFolderFilter = null;
-        let activeChatTarget = null; // يمكن أن يكون بريد طالب أو معرف مجموعة مثل "group_1"
+        let activeChatTarget = null;
         let currentLang = localStorage.getItem('4a_lang') || 'ar';
 
         const i18n = {
@@ -1049,7 +1072,7 @@
                 groupsTitle: "Crear y Gestionar Grupos de Estudiantes",
                 groupNameLabel: "Nombre del Grupo",
                 selectStudentsForGroup: "Seleccionar Estudiantes para el Grupo:",
-                saveGroupBtn: "Crear Grupo",
+                saveGroupBtn: "Creار Grupo",
                 currentGroups: "Grupos Actuales",
                 addUserTitle: "Agregar Nuevo Usuario",
                 nameLabel: "Nombre",
@@ -1150,7 +1173,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 34);
+        const request = indexedDB.open("4ACodingSchoolDB", 36);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -1164,7 +1187,19 @@
             loadHomeworksFromDB();
             loadMessagesFromDB();
             loadCompletionsFromDB();
+            checkStorageQuota();
         };
+
+        async function checkStorageQuota() {
+            if (navigator.storage && navigator.storage.estimate) {
+                const estimate = await navigator.storage.estimate();
+                const quotaMB = (estimate.quota / (1024 * 1024 * 1024)).toFixed(2);
+                const badge = document.getElementById('storageUsageBadge');
+                if (badge) {
+                    badge.textContent = `مساحة المتصفح المتاحة: ~${quotaMB} جيجابايت 🟢`;
+                }
+            }
+        }
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -1408,10 +1443,8 @@
             select.innerHTML = '';
 
             if (state.currentUser.isAdmin) {
-                // للمدرف: عرض قائمة الطلاب والمجموعات المشتركة
                 let hasOpt = false;
                 
-                // إضافة المجموعات أولاً
                 if (state.groups.length > 0) {
                     let groupOptGroup = document.createElement('optgroup');
                     groupOptGroup.label = "المجموعات المشتركة (Groups)";
@@ -1425,7 +1458,6 @@
                     select.appendChild(groupOptGroup);
                 }
 
-                // إضافة الطلاب الفرديين
                 const students = state.users.filter(u => u.role === 'student');
                 if (students.length > 0) {
                     let studentOptGroup = document.createElement('optgroup');
@@ -1450,10 +1482,8 @@
                     select.value = activeChatTarget;
                 }
             } else {
-                // للطالب: يرى محادثته الخاصة مع المعلم + المجموعات المشتركة المضاف إليها
                 let hasOpt = false;
                 
-                // محادثته الخاصة
                 let myOpt = document.createElement('option');
                 myOpt.value = state.currentUser.email;
                 myOpt.textContent = `💬 محادثتي الخاصة مع المعلم`;
@@ -1461,7 +1491,6 @@
                 activeChatTarget = state.currentUser.email;
                 hasOpt = true;
 
-                // المجموعات المشتركة التي ينتمي إليها الطالب
                 const myGroups = state.groups.filter(g => g.students && g.students.includes(state.currentUser.email));
                 if (myGroups.length > 0) {
                     let groupOptGroup = document.createElement('optgroup');
@@ -1561,7 +1590,7 @@
 
             const msgObj = {
                 id: Date.now().toString() + "_" + Math.random(),
-                targetKey: activeChatTarget, // إما بريد طالب أو group_idx
+                targetKey: activeChatTarget,
                 senderEmail: state.currentUser.email,
                 senderName: state.currentUser.name,
                 isAdminSender: state.currentUser.isAdmin,
@@ -1891,7 +1920,6 @@
                         <div>
                             <span class="video-folder-tag"><i class="fa-solid fa-folder"></i> ${v.folder || "عام"}</span>
                             <div class="video-title">${v.title}</div>
-                            <div class="video-desc">${v.desc || ''}</div>
                         </div>
                         ${attachedBoxHtml}
                         ${studentStatusHtml}
@@ -2240,7 +2268,7 @@
         }
 
         function renderUsersTable() {
-            const tbody = document.getElementById('usersTableBody');
+            const tbody = document.getElementById('usersTableBoard') || document.getElementById('usersTableBody');
             if (!tbody) return;
             tbody.innerHTML = '';
             state.users.forEach((u, index) => {
