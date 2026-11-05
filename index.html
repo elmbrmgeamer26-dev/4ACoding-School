@@ -401,7 +401,7 @@
             margin-bottom: 5px;
         }
 
-        /* تنسيق الشات الجديد */
+        /* تنسيق الشات والمجموعات */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -429,13 +429,7 @@
             line-height: 1.4;
         }
 
-        .chat-bubble.student {
-            background-color: #334155;
-            align-self: flex-start;
-            border-top-right-radius: 0;
-        }
-
-        .chat-bubble.admin {
+        .chat-bubble.my-msg {
             background-color: var(--accent);
             color: #000;
             align-self: flex-end;
@@ -443,19 +437,18 @@
             font-weight: 500;
         }
 
+        .chat-bubble.other-msg {
+            background-color: #334155;
+            color: var(--text-main);
+            align-self: flex-start;
+            border-top-right-radius: 0;
+        }
+
         .chat-sender {
             font-size: 0.75rem;
             margin-bottom: 4px;
-            color: var(--text-muted);
+            color: #94a3b8;
             display: block;
-        }
-
-        .translated-tag {
-            font-size: 0.75rem;
-            color: #fbbf24;
-            font-style: italic;
-            display: block;
-            margin-top: 4px;
         }
 
         .chat-input-area {
@@ -534,6 +527,17 @@
         .chat-file-download-card:hover {
             background: var(--accent);
             color: #000;
+        }
+
+        .group-card-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
         .data-table {
@@ -673,7 +677,7 @@
                     <i class="fa-solid fa-play"></i> <span data-i18n="menuVideos">الدروس والتطبيقات</span>
                 </li>
                 <li id="menuChat" class="permission-check" data-perm="chat" onclick="switchTab('chat')">
-                    <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle" data-i18n="menuChat">تواصل مع المعلم</span>
+                    <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle" data-i18n="menuChat">المحادثات والمجموعات</span>
                 </li>
                 <li id="menuAddVideo" class="admin-only hidden" onclick="switchTab('addVideo')">
                     <i class="fa-solid fa-folder-plus"></i> <span data-i18n="menuAddVideo">رفع مجلد فيديوهات</span>
@@ -705,11 +709,13 @@
             </div>
 
             <div id="tabChat" class="hidden">
-                <h2 id="chatHeaderTitle"><i class="fa-solid fa-comments"></i> <span data-i18n="chatTitle">المحادثة المباشرة</span></h2>
+                <h2 id="chatHeaderTitle"><i class="fa-solid fa-comments"></i> <span data-i18n="chatTitle">المحادثات والمجموعات المشتركة</span></h2>
                 
-                <div id="adminChatSelector" class="hidden" style="margin-bottom: 15px;">
-                    <label style="color:var(--text-muted); font-size:0.9rem; display:block; margin-bottom:5px;" data-i18n="selectStudentChat">اختر الطالب لمحادثته:</label>
-                    <select id="chatStudentSelect" onchange="changeActiveChatStudent()" style="max-width: 300px; padding: 10px; background:var(--card-bg); color:white; border:1px solid var(--border-color); border-radius:6px;"></select>
+                <div style="margin-bottom: 15px; display:flex; gap:15px; align-items:center; flex-wrap:wrap;">
+                    <div>
+                        <label style="color:var(--text-muted); font-size:0.9rem; display:block; margin-bottom:5px;">اختر المحادثة أو الكروب:</label>
+                        <select id="chatTargetSelect" onchange="changeActiveChatTarget()" style="min-width: 250px; padding: 10px; background:var(--card-bg); color:white; border:1px solid var(--border-color); border-radius:6px;"></select>
+                    </div>
                 </div>
 
                 <div class="chat-container">
@@ -796,7 +802,7 @@
                 <div style="max-width: 600px; margin-top: 20px; background:var(--card-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
                     <form onsubmit="handleCreateGroup(event)">
                         <div class="form-group">
-                            <label data-i18n="groupNameLabel">اسم المجموعة</label>
+                            <label data-i18n="groupNameLabel">اسم المجموعة المشتركة</label>
                             <input type="text" id="groupNameInput" required placeholder="مثال: مجموعة المتميزين في بايثون">
                         </div>
                         <div class="form-group">
@@ -893,7 +899,7 @@
         let deferredPrompt;
         let db;
         let currentFolderFilter = null;
-        let activeChatEmail = null;
+        let activeChatTarget = null; // يمكن أن يكون بريد طالب أو معرف مجموعة مثل "group_1"
         let currentLang = localStorage.getItem('4a_lang') || 'ar';
 
         const i18n = {
@@ -907,7 +913,7 @@
                 passLabel: "كلمة المرور",
                 loginBtn: "دخول للمنصة",
                 menuVideos: "الدروس والتطبيقات",
-                menuChat: "تواصل مع المعلم",
+                menuChat: "المحادثات والمجموعات",
                 menuAddVideo: "رفع مجلد فيديوهات",
                 menuAddAttachments: "إضافة ملحقات للسيشنات",
                 menuHomeworks: "متابعة واجبات الطلاب",
@@ -915,8 +921,7 @@
                 menuGroups: "إدارة المجموعات",
                 menuStudents: "إدارة المستخدمين",
                 libraryTitle: "المكتبة التعليمية",
-                chatTitle: "المحادثة المباشرة",
-                selectStudentChat: "اختر الطالب لمحادثته:",
+                chatTitle: "المحادثات والمجموعات المشتركة",
                 send: "إرسال",
                 uploadFolderTitle: "رفع مجلد فيديوهات كامل (Upload All Videos)",
                 folderNameLabel: "اسم المجلد أو القسم (Blocks أو Python)",
@@ -961,7 +966,7 @@
                 passLabel: "Password",
                 loginBtn: "Login to Platform",
                 menuVideos: "Lessons & Apps",
-                menuChat: "Chat with Teacher",
+                menuChat: "Chats & Groups",
                 menuAddVideo: "Upload Videos Folder",
                 menuAddAttachments: "Add Session Attachments",
                 menuHomeworks: "Student Homeworks",
@@ -969,8 +974,7 @@
                 menuGroups: "Manage Groups",
                 menuStudents: "Manage Users",
                 libraryTitle: "Educational Library",
-                chatTitle: "Live Chat",
-                selectStudentChat: "Select Student to Chat:",
+                chatTitle: "Chats & Shared Groups",
                 send: "Send",
                 uploadFolderTitle: "Upload Full Videos Folder",
                 folderNameLabel: "Folder/Section Name (Blocks or Python)",
@@ -1015,7 +1019,7 @@
                 passLabel: "Contraseña",
                 loginBtn: "Entrar a la Plataforma",
                 menuVideos: "Lecciones y Aplicaciones",
-                menuChat: "Chatear con el Profesor",
+                menuChat: "Chats y Grupos",
                 menuAddVideo: "Subir Carpeta de Videos",
                 menuAddAttachments: "Agregar Adjuntos",
                 menuHomeworks: "Tareas de Estudiantes",
@@ -1023,8 +1027,7 @@
                 menuGroups: "Gestionar Grupos",
                 menuStudents: "Gestionar Usuarios",
                 libraryTitle: "Biblioteca Educativa",
-                chatTitle: "Chat en Vivo",
-                selectStudentChat: "Seleccionar Estudiante para Chatear:",
+                chatTitle: "Chats y Grupos Compartidos",
                 send: "Enviar",
                 uploadFolderTitle: "Subir Carpeta de Videos Completa",
                 folderNameLabel: "Nombre de Carpeta/Sección (Blocks o Python)",
@@ -1147,7 +1150,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 33);
+        const request = indexedDB.open("4ACodingSchoolDB", 34);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -1392,41 +1395,96 @@
                 }
             });
 
-            if (user.isAdmin) {
-                initAdminChatSelector();
-            } else {
-                activeChatEmail = user.email;
-            }
+            initChatTargetsDropdown();
 
             if (!user.isAdmin) {
                 switchTab('videos');
             }
         }
 
-        function initAdminChatSelector() {
-            const select = document.getElementById('chatStudentSelect');
-            if (!select) return;
+        function initChatTargetsDropdown() {
+            const select = document.getElementById('chatTargetSelect');
+            if (!select || !state.currentUser) return;
             select.innerHTML = '';
-            const students = state.users.filter(u => u.role === 'student');
-            if (students.length === 0) {
-                select.innerHTML = '<option value="">لا توجد طلاب مسجلين بعد</option>';
-                return;
+
+            if (state.currentUser.isAdmin) {
+                // للمدرف: عرض قائمة الطلاب والمجموعات المشتركة
+                let hasOpt = false;
+                
+                // إضافة المجموعات أولاً
+                if (state.groups.length > 0) {
+                    let groupOptGroup = document.createElement('optgroup');
+                    groupOptGroup.label = "المجموعات المشتركة (Groups)";
+                    state.groups.forEach((g, idx) => {
+                        let opt = document.createElement('option');
+                        opt.value = `group_${idx}`;
+                        opt.textContent = `👥 كروب: ${g.name}`;
+                        groupOptGroup.appendChild(opt);
+                        hasOpt = true;
+                    });
+                    select.appendChild(groupOptGroup);
+                }
+
+                // إضافة الطلاب الفرديين
+                const students = state.users.filter(u => u.role === 'student');
+                if (students.length > 0) {
+                    let studentOptGroup = document.createElement('optgroup');
+                    studentOptGroup.label = "محادثات الطلاب الفردية";
+                    students.forEach(u => {
+                        let opt = document.createElement('option');
+                        opt.value = u.email;
+                        opt.textContent = `👤 طالب: ${u.name} (${u.email})`;
+                        studentOptGroup.appendChild(opt);
+                        hasOpt = true;
+                    });
+                    select.appendChild(studentOptGroup);
+                }
+
+                if (!hasOpt) {
+                    select.innerHTML = '<option value="">لا توجد طلاب أو مجموعات بعد</option>';
+                    activeChatTarget = null;
+                } else {
+                    if (!activeChatTarget || !select.querySelector(`option[value="${activeChatTarget}"]`)) {
+                        activeChatTarget = select.options[0].value;
+                    }
+                    select.value = activeChatTarget;
+                }
+            } else {
+                // للطالب: يرى محادثته الخاصة مع المعلم + المجموعات المشتركة المضاف إليها
+                let hasOpt = false;
+                
+                // محادثته الخاصة
+                let myOpt = document.createElement('option');
+                myOpt.value = state.currentUser.email;
+                myOpt.textContent = `💬 محادثتي الخاصة مع المعلم`;
+                select.appendChild(myOpt);
+                activeChatTarget = state.currentUser.email;
+                hasOpt = true;
+
+                // المجموعات المشتركة التي ينتمي إليها الطالب
+                const myGroups = state.groups.filter(g => g.students && g.students.includes(state.currentUser.email));
+                if (myGroups.length > 0) {
+                    let groupOptGroup = document.createElement('optgroup');
+                    groupOptGroup.label = "مجموعاتي المشتركة";
+                    state.groups.forEach((g, idx) => {
+                        if (g.students && g.students.includes(state.currentUser.email)) {
+                            let opt = document.createElement('option');
+                            opt.value = `group_${idx}`;
+                            opt.textContent = `👥 كروب: ${g.name}`;
+                            groupOptGroup.appendChild(opt);
+                        }
+                    });
+                    select.appendChild(groupOptGroup);
+                }
+                select.value = activeChatTarget;
             }
-            students.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.email;
-                opt.textContent = `${u.name} (${u.email})`;
-                select.appendChild(opt);
-            });
-            if (students.length > 0 && !activeChatEmail) {
-                activeChatEmail = students[0].email;
-            }
+            renderChatMessages();
         }
 
-        function changeActiveChatStudent() {
-            const select = document.getElementById('chatStudentSelect');
+        function changeActiveChatTarget() {
+            const select = document.getElementById('chatTargetSelect');
             if (select) {
-                activeChatEmail = select.value;
+                activeChatTarget = select.value;
                 renderChatMessages();
             }
         }
@@ -1451,9 +1509,7 @@
             } else if (tab === 'chat') {
                 document.getElementById('tabChat').classList.remove('hidden');
                 document.getElementById('menuChat').classList.add('active');
-                if (state.currentUser && state.currentUser.isAdmin) {
-                    document.getElementById('adminChatSelector').classList.remove('hidden');
-                }
+                initChatTargetsDropdown();
                 loadMessagesFromDB();
             } else if (tab === 'addVideo') {
                 document.getElementById('tabAddVideo').classList.remove('hidden');
@@ -1498,25 +1554,17 @@
         function sendChatMessage() {
             const input = document.getElementById('chatInputText');
             const text = input.value.trim();
-            if (!text) return;
-
-            if (state.currentUser && !state.currentUser.isAdmin && !activeChatEmail) {
-                activeChatEmail = state.currentUser.email;
-            }
-
-            if (state.currentUser && state.currentUser.isAdmin && !activeChatEmail) {
-                alert('يرجى اختيار طالب أولاً لمحادثته.');
-                return;
-            }
+            if (!text || !activeChatTarget) return;
 
             let isEng = isEnglishText(text);
             let translated = isEng ? translateEnToArabicText(text) : text;
 
             const msgObj = {
                 id: Date.now().toString() + "_" + Math.random(),
-                studentEmail: state.currentUser.isAdmin ? activeChatEmail : state.currentUser.email,
-                sender: state.currentUser.isAdmin ? 'admin' : 'student',
+                targetKey: activeChatTarget, // إما بريد طالب أو group_idx
+                senderEmail: state.currentUser.email,
                 senderName: state.currentUser.name,
+                isAdminSender: state.currentUser.isAdmin,
                 originalText: text,
                 translatedText: translated,
                 isTranslated: isEng,
@@ -1529,26 +1577,17 @@
         }
 
         function sendChatFile(input) {
-            if (!input.files || !input.files[0]) return;
+            if (!input.files || !input.files[0] || !activeChatTarget) return;
             const file = input.files[0];
-
-            if (state.currentUser && !state.currentUser.isAdmin && !activeChatEmail) {
-                activeChatEmail = state.currentUser.email;
-            }
-
-            if (state.currentUser && state.currentUser.isAdmin && !activeChatEmail) {
-                alert('يرجى اختيار طالب أولاً لمحادثته.');
-                input.value = '';
-                return;
-            }
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const msgObj = {
                     id: Date.now().toString() + "_" + Math.random(),
-                    studentEmail: state.currentUser.isAdmin ? activeChatEmail : state.currentUser.email,
-                    sender: state.currentUser.isAdmin ? 'admin' : 'student',
+                    targetKey: activeChatTarget,
+                    senderEmail: state.currentUser.email,
                     senderName: state.currentUser.name,
+                    isAdminSender: state.currentUser.isAdmin,
                     originalText: `ملف مرفق: ${file.name}`,
                     translatedText: `ملف مرفق: ${file.name}`,
                     isTranslated: false,
@@ -1572,32 +1611,27 @@
 
         function renderChatMessages() {
             const box = document.getElementById('chatMessagesBox');
-            if (!box || !state.currentUser) return;
+            if (!box || !state.currentUser || !activeChatTarget) return;
             box.innerHTML = '';
 
-            let targetEmail = state.currentUser.isAdmin ? activeChatEmail : state.currentUser.email;
-            if (!targetEmail) {
-                box.innerHTML = '<p style="color:var(--text-muted); text-align:center;">اختر طالباً لبدء المحادثة.</p>';
-                return;
-            }
-
-            const chatMessages = state.messages.filter(m => m.studentEmail === targetEmail);
+            const chatMessages = state.messages.filter(m => m.targetKey === activeChatTarget);
 
             if (chatMessages.length === 0) {
-                box.innerHTML = '<p style="color:var(--text-muted); text-align:center; margin-top:20px;">لا توجد رسائل سابقة. ابدأ المحادثة أو أرسل الملفات الآن!</p>';
+                box.innerHTML = '<p style="color:var(--text-muted); text-align:center; margin-top:20px;">لا توجد رسائل في هذه المحادثة بعد. ابدأ الإرسال الآن!</p>';
                 return;
             }
 
             chatMessages.forEach(m => {
+                const isMyMessage = (m.senderEmail === state.currentUser.email);
                 const bubble = document.createElement('div');
-                bubble.className = `chat-bubble ${m.sender === 'admin' ? 'admin' : 'student'}`;
+                bubble.className = `chat-bubble ${isMyMessage ? 'my-msg' : 'other-msg'}`;
                 
                 let textDisplay = m.originalText;
                 let translateNotice = '';
 
                 if (m.isTranslated) {
                     textDisplay = m.translatedText;
-                    translateNotice = `<span class="translated-tag">(مترجم للعربية تلقائياً من الإنجليزية: "${m.originalText}")</span>`;
+                    translateNotice = `<span style="font-size:0.75rem; color:#fbbf24; font-style:italic; display:block; margin-top:4px;">(مترجم للعربية: "${m.originalText}")</span>`;
                 }
 
                 let fileHtml = '';
@@ -1618,7 +1652,7 @@
                 }
 
                 bubble.innerHTML = `
-                    <span class="chat-sender">${m.senderName} - <small>${m.date}</small></span>
+                    <span class="chat-sender">${m.senderName} <small>(${m.date})</small></span>
                     <div>${m.fileData ? '' : textDisplay}</div>
                     ${fileHtml}
                     ${translateNotice}
@@ -2109,18 +2143,18 @@
 
             state.groups.forEach((g, idx) => {
                 const card = document.createElement('div');
-                card.style.cssText = "background:var(--card-bg); border:1px solid var(--border-color); padding:15px; border-radius:8px;";
+                card.className = 'group-card-item';
                 let studentsNames = g.students.map(email => {
                     let st = state.users.find(u => u.email === email);
                     return st ? st.name : email;
                 }).join(', ') || 'لا توجد طلاب في هذه المجموعة';
 
                 card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
                         <h3 style="color:var(--accent); font-size:1.1rem;"><i class="fa-solid fa-users"></i> ${g.name}</h3>
-                        <button onclick="deleteGroup(${idx})" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem;">حذف المجموعة</button>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:5px;"><strong>الأعضاء:</strong> ${studentsNames}</p>
                     </div>
-                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;"><strong>الطلاب الأعضاء:</strong> ${studentsNames}</p>
+                    <button onclick="deleteGroup(${idx})" style="background:var(--danger); color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.85rem;">حذف المجموعة</button>
                 `;
                 listContainer.appendChild(card);
             });
@@ -2144,9 +2178,10 @@
                 students: selectedStudents
             });
             saveGroupsData();
-            alert('تم إنشاء وتشكيل المجموعة بنجاح!');
+            alert('تم إنشاء وتشكيل المجموعة المشتركة بنجاح!');
             document.getElementById('groupNameInput').value = '';
             renderGroupsManagement();
+            initChatTargetsDropdown();
         }
 
         function deleteGroup(index) {
@@ -2154,6 +2189,7 @@
                 state.groups.splice(index, 1);
                 saveGroupsData();
                 renderGroupsManagement();
+                initChatTargetsDropdown();
             }
         }
 
@@ -2200,7 +2236,7 @@
             renderPermissionsList();
             renderUsersTable();
             renderGroupsManagement();
-            initAdminChatSelector();
+            initChatTargetsDropdown();
         }
 
         function renderUsersTable() {
@@ -2214,7 +2250,7 @@
                     editBtn = `<button onclick="openEditStudentModal('${u.email}')" style="background:var(--accent); color:#000; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold; margin-left:5px;">تعديل الصلاحيات</button>`;
                 }
 
-                    tr.innerHTML = `
+                tr.innerHTML = `
                     <td>${u.name}</td>
                     <td>${u.email}</td>
                     <td>${u.role === 'admin' ? '<span style="color:var(--accent);">مشرف مساعد</span>' : 'طالب'}</td>
@@ -2233,7 +2269,7 @@
                 saveUsersData();
                 renderUsersTable();
                 renderGroupsManagement();
-                initAdminChatSelector();
+                initChatTargetsDropdown();
             }
         }
 
