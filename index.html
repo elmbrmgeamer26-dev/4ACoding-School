@@ -481,22 +481,7 @@
             transition: 0.2s;
         }
 
-        .homework-box {
-            background: rgba(255,255,255,0.03);
-            border: 1px dashed var(--border-color);
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 10px;
-        }
-
-        .homework-box label {
-            font-size: 0.8rem;
-            color: var(--accent);
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        /* المحادثات والجروبات */
+        /* الشات والمحادثات */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -522,6 +507,13 @@
             border-radius: 10px;
             font-size: 0.95rem;
             line-height: 1.4;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chat-bubble:hover {
+            opacity: 0.92;
         }
 
         .chat-bubble.my-msg {
@@ -679,14 +671,6 @@
             width: auto;
         }
 
-        .hw-preview-media {
-            max-width: 150px;
-            max-height: 100px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            object-fit: cover;
-        }
-
         body.mobile-version .dashboard {
             flex-direction: column;
         }
@@ -742,9 +726,9 @@
         </div>
 
         <div class="user-info hidden" id="headerUserInfo">
-            <!-- صندوق البريد والإشعارات بجانب الاسم -->
+            <!-- صندوق البريد والإشعارات -->
             <div class="inbox-wrapper">
-                <button class="inbox-btn" onclick="toggleInboxDropdown()" title="صندوق الرسائل الواردة">
+                <button class="inbox-btn" onclick="toggleInboxDropdown()" title="صندوق الرسائل الواردة والواجبات">
                     <i class="fa-solid fa-envelope"></i>
                     <span class="inbox-badge hidden" id="inboxBadgeCount">0</span>
                 </button>
@@ -797,14 +781,11 @@
                 <li id="menuAddAttachments" class="admin-only hidden" onclick="switchTab('addAttachments')">
                     <i class="fa-solid fa-paperclip"></i> <span data-i18n="menuAddAttachments">إضافة ملحقات للسيشنات</span>
                 </li>
-                <li id="menuHomeworks" class="admin-only hidden" onclick="switchTab('homeworks')">
-                    <i class="fa-solid fa-clipboard-check"></i> <span data-i18n="menuHomeworks">متابعة واجبات الطلاب</span>
-                </li>
                 <li id="menuCompletions" class="admin-only hidden" onclick="switchTab('completions')">
                     <i class="fa-solid fa-trophy"></i> <span data-i18n="menuCompletions">إشعارات إنهاء الكورسات</span>
                 </li>
                 <li id="menuGroups" class="admin-only hidden" onclick="switchTab('groups')">
-                    <i class="fa-solid fa-layer-group"></i> <span data-i18n="menuGroups">إدارة المجموعات والجروبات</span>
+                    <i class="fa-solid fa-layer-group"></i> <span data-i18n="menuGroups">إدارة الجروبات</span>
                 </li>
                 <li id="menuStudents" class="admin-only hidden" onclick="switchTab('students')">
                     <i class="fa-solid fa-users"></i> <span data-i18n="menuStudents">إدارة المستخدمين</span>
@@ -814,7 +795,7 @@
 
         <div class="content">
             <div id="tabVideos">
-                <!-- بانر مساحة التخزين - يظهر للمالك/المدير فقط -->
+                <!-- بانر مساحة التخزين - يظهر للمالك فقط -->
                 <div class="storage-banner hidden" id="ownerStorageBanner">
                     <div class="storage-info-text">
                         <i class="fa-solid fa-database" style="font-size: 1.2rem; color: var(--accent);"></i>
@@ -843,8 +824,8 @@
                     <div class="chat-messages" id="chatMessagesBox"></div>
                     <div class="chat-input-area">
                         <input type="file" id="chatFileInput" class="hidden" onchange="sendChatFile(this)">
-                        <button class="chat-file-btn" onclick="document.getElementById('chatFileInput').click()" title="إرسال صورة، فيديو، أو ملف PowerPoint/PDF"><i class="fa-solid fa-paperclip"></i></button>
-                        <input type="text" id="chatInputText" placeholder="اكتب رسالتك هنا..." onkeypress="handleChatKeyPress(event)">
+                        <button class="chat-file-btn" onclick="document.getElementById('chatFileInput').click()" title="إرسال رسالة، واجب (صورة أو فيديو)، أو ملف"><i class="fa-solid fa-paperclip"></i></button>
+                        <input type="text" id="chatInputText" placeholder="اكتب رسالتك أو ارفع واجبك هنا..." onkeypress="handleChatKeyPress(event)">
                         <button class="send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i> <span data-i18n="send">إرسال</span></button>
                     </div>
                 </div>
@@ -886,21 +867,6 @@
                         <button type="submit" class="btn-primary" data-i18n="saveAttachBtn">حفظ الملحقات لهذا السيشن</button>
                     </form>
                 </div>
-            </div>
-
-            <div id="tabHomeworks" class="hidden">
-                <h2><i class="fa-solid fa-clipboard-list"></i> <span data-i18n="homeworksTitle">الواجبات المرفوعة من الطلاب</span></h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th data-i18n="thStudentName">اسم الطالب</th>
-                            <th data-i18n="thLesson">الدرس</th>
-                            <th data-i18n="thHwFile">ملف الواجب</th>
-                            <th data-i18n="thTime">وقت الإرسال</th>
-                        </tr>
-                    </thead>
-                    <tbody id="homeworksTableBody"></tbody>
-                </table>
             </div>
 
             <div id="tabCompletions" class="hidden">
@@ -967,11 +933,10 @@
                             <div class="checkbox-group">
                                 <label class="checkbox-item"><input type="checkbox" value="videos" class="admin-perm-box" checked> رفع الفيديوهات</label>
                                 <label class="checkbox-item"><input type="checkbox" value="addAttachments" class="admin-perm-box" checked> إضافة الملحقات</label>
-                                <label class="checkbox-item"><input type="checkbox" value="homeworks" class="admin-perm-box" checked> متابعة الواجبات</label>
                                 <label class="checkbox-item"><input type="checkbox" value="chat" class="admin-perm-box" checked> الرد على محادثات الطلاب</label>
                                 <label class="checkbox-item"><input type="checkbox" value="students" class="admin-perm-box"> إدارة المستخدمين</label>
                                 <label class="checkbox-item"><input type="checkbox" value="completions" class="admin-perm-box" checked> إشعارات إنهاء الكورسات</label>
-                                <label class="checkbox-item"><input type="checkbox" value="groups" class="admin-perm-box" checked> إدارة المجموعات</label>
+                                <label class="checkbox-item"><input type="checkbox" value="groups" class="admin-perm-box" checked> إدارة الجروبات</label>
                             </div>
                         </div>
 
@@ -1037,7 +1002,6 @@
                 menuChat: "المحادثات والجروبات",
                 menuAddVideo: "رفع مجلد فيديوهات",
                 menuAddAttachments: "إضافة ملحقات للسيشنات",
-                menuHomeworks: "متابعة واجبات الطلاب",
                 menuCompletions: "إشعارات إنهاء الكورسات",
                 menuGroups: "إدارة المجموعات والجروبات",
                 menuStudents: "إدارة المستخدمين",
@@ -1053,11 +1017,6 @@
                 pptFilesLabel: "ملفات PowerPoint أو PDF:",
                 imageFilesLabel: "صور توضيحية:",
                 saveAttachBtn: "حفظ الملحقات لهذا السيشن",
-                homeworksTitle: "الواجبات المرفوعة من الطلاب",
-                thStudentName: "اسم الطالب",
-                thLesson: "الدرس",
-                thHwFile: "ملف الواجب",
-                thTime: "وقت الإرسال",
                 completionsTitle: "إشعارات إنهاء الكورسات (Blocks / Python)",
                 thEmail: "البريد الإلكتروني",
                 thCourseFinished: "الكورس المنتهي",
@@ -1090,7 +1049,6 @@
                 menuChat: "Chats & Groups",
                 menuAddVideo: "Upload Videos Folder",
                 menuAddAttachments: "Add Session Attachments",
-                menuHomeworks: "Student Homeworks",
                 menuCompletions: "Course Completion Alerts",
                 menuGroups: "Manage Groups",
                 menuStudents: "Manage Users",
@@ -1106,11 +1064,6 @@
                 pptFilesLabel: "PowerPoint or PDF Files:",
                 imageFilesLabel: "Illustration Images:",
                 saveAttachBtn: "Save Attachments",
-                homeworksTitle: "Submitted Student Homeworks",
-                thStudentName: "Student Name",
-                thLesson: "Lesson",
-                thHwFile: "Homework File",
-                thTime: "Time Sent",
                 completionsTitle: "Course Completion Alerts",
                 thEmail: "Email",
                 thCourseFinished: "Finished Course",
@@ -1143,7 +1096,6 @@
                 menuChat: "Chats y Grupos",
                 menuAddVideo: "Subir Carpeta de Videos",
                 menuAddAttachments: "Agregar Adjuntos",
-                menuHomeworks: "Tareas de Estudiantes",
                 menuCompletions: "Alertas de Finalización",
                 menuGroups: "Gestionar Grupos",
                 menuStudents: "Gestionar Usuarios",
@@ -1159,11 +1111,6 @@
                 pptFilesLabel: "Archivos PowerPoint o PDF:",
                 imageFilesLabel: "Imágenes Ilustrativas:",
                 saveAttachBtn: "Guardar Adjuntos",
-                homeworksTitle: "Tareas Entregadas",
-                thStudentName: "Nombre del Estudiante",
-                thLesson: "Lección",
-                thHwFile: "Archivo de Tarea",
-                thTime: "Hora de Envío",
                 completionsTitle: "Alertas de Cursos Finalizados",
                 thEmail: "Correo",
                 thCourseFinished: "Curso Finalizado",
@@ -1177,7 +1124,7 @@
                 roleLabel: "Tipo de Cuenta:",
                 subAdminPerms: "Establecer Permisos de Sub-Admin:",
                 allowedVideosLabel: "Establecer Videos Permitidos para Estudiante:",
-                createUserBtn: "Crear Cuenta",
+                createUserBtn: "Creار Cuenta",
                 registeredUsers: "Lista de Usuarios Registrados",
                 thName: "Nombre",
                 thRole: "Tipo de Cuenta",
@@ -1264,25 +1211,22 @@
             currentUser: null,
             users: JSON.parse(localStorage.getItem('4a_users')) || [],
             videos: [],
-            homeworks: [],
             messages: [],
             completions: [],
             groups: JSON.parse(localStorage.getItem('4a_groups')) || [],
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 38);
+        const request = indexedDB.open("4ACodingSchoolDB", 39);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
-            if (!db.objectStoreNames.contains("homeworks")) db.createObjectStore("homeworks", { keyPath: "id" });
             if (!db.objectStoreNames.contains("messages")) db.createObjectStore("messages", { keyPath: "id" });
             if (!db.objectStoreNames.contains("completions")) db.createObjectStore("completions", { keyPath: "id" });
         };
         request.onsuccess = function(e) {
             db = e.target.result;
             loadVideosFromDB();
-            loadHomeworksFromDB();
             loadMessagesFromDB();
             loadCompletionsFromDB();
         };
@@ -1347,27 +1291,20 @@
             tx.oncomplete = () => loadVideosFromDB();
         }
 
-        function saveHomeworkToDB(hwObj) {
-            if (!db) return;
-            const tx = db.transaction("homeworks", "readwrite");
-            tx.objectStore("homeworks").put(hwObj);
-            tx.oncomplete = () => loadHomeworksFromDB();
-        }
-
-        function loadHomeworksFromDB() {
-            if (!db) return;
-            const tx = db.transaction("homeworks", "readonly");
-            const getAll = tx.objectStore("homeworks").getAll();
-            getAll.onsuccess = function() {
-                state.homeworks = getAll.result || [];
-                renderHomeworksTable();
-            };
-        }
-
-        function saveMessageToDB(msgObj) {
+        function saveMessageToDB(msgObj, callback) {
             if (!db) return;
             const tx = db.transaction("messages", "readwrite");
             tx.objectStore("messages").put(msgObj);
+            tx.oncomplete = () => {
+                loadMessagesFromDB();
+                if (callback) callback();
+            };
+        }
+
+        function deleteMessageFromDB(msgId) {
+            if (!db) return;
+            const tx = db.transaction("messages", "readwrite");
+            tx.objectStore("messages").delete(msgId);
             tx.oncomplete = () => loadMessagesFromDB();
         }
 
@@ -1411,7 +1348,7 @@
                         name: "Amir Mohamed (Owner)", 
                         isSuperAdmin: true, 
                         isAdmin: true, 
-                        permissions: ['videos', 'addAttachments', 'homeworks', 'chat', 'students', 'completions', 'groups'] 
+                        permissions: ['videos', 'addAttachments', 'chat', 'students', 'completions', 'groups'] 
                     };
                     saveSessionData();
                     initApp();
@@ -1472,7 +1409,7 @@
                 document.getElementById('headerUserInfo').classList.remove('hidden');
                 document.getElementById('userNameDisplay').textContent = state.currentUser.name;
 
-                // إظهار بانر مساحة التخزين للمالك فقط
+                // إظهار مساحة التخزين للمالك فقط
                 const storageBanner = document.getElementById('ownerStorageBanner');
                 if (storageBanner) {
                     if (state.currentUser.isSuperAdmin) {
@@ -1485,7 +1422,6 @@
                 applyUserPermissions();
 
                 loadVideosFromDB();
-                loadHomeworksFromDB();
                 loadMessagesFromDB();
                 loadCompletionsFromDB();
                 renderUsersTable();
@@ -1593,7 +1529,7 @@
             let html = '';
             myInbox.slice(0, 15).forEach(msg => {
                 let textPreview = msg.originalText;
-                if (msg.fileData) textPreview = `📎 ملف مرفق: ${msg.fileData.name}`;
+                if (msg.fileData) textPreview = `📎 ملف/واجب مرفق: ${msg.fileData.name}`;
 
                 let groupLabel = '';
                 if (msg.targetKey.startsWith('group_')) {
@@ -1711,7 +1647,6 @@
             document.getElementById('tabChat').classList.add('hidden');
             document.getElementById('tabAddVideo').classList.add('hidden');
             document.getElementById('tabAddAttachments').classList.add('hidden');
-            document.getElementById('tabHomeworks').classList.add('hidden');
             document.getElementById('tabStudents').classList.add('hidden');
             const compTab = document.getElementById('tabCompletions');
             if (compTab) compTab.classList.add('hidden');
@@ -1734,10 +1669,6 @@
                 document.getElementById('tabAddAttachments').classList.remove('hidden');
                 document.getElementById('menuAddAttachments').classList.add('active');
                 renderAttachmentsVideoSelect();
-            } else if (tab === 'homeworks') {
-                document.getElementById('tabHomeworks').classList.remove('hidden');
-                document.getElementById('menuHomeworks').classList.add('active');
-                loadHomeworksFromDB();
             } else if (tab === 'completions') {
                 if (compTab) compTab.classList.remove('hidden');
                 document.getElementById('menuCompletions').classList.add('active');
@@ -1804,8 +1735,8 @@
                     senderEmail: state.currentUser.email,
                     senderName: state.currentUser.name,
                     isAdminSender: state.currentUser.isAdmin,
-                    originalText: `ملف مرفق: ${file.name}`,
-                    translatedText: `ملف مرفق: ${file.name}`,
+                    originalText: `ملف / واجب مرفق: ${file.name}`,
+                    translatedText: `ملف / واجب مرفق: ${file.name}`,
                     isTranslated: false,
                     fileData: {
                         name: file.name,
@@ -1825,6 +1756,34 @@
             if (e.key === 'Enter') sendChatMessage();
         }
 
+        // خاصية الضغط على الرسالة للتعديل أو الحذف من عند الكل
+        function handleMessageClick(msgId, senderEmail, originalText) {
+            if (!state.currentUser) return;
+            
+            // السماح لصاحب الرسالة أو المدير بالحذف والتعديل
+            if (state.currentUser.email !== senderEmail && !state.currentUser.isAdmin) {
+                return; // ليس صاحب الرسالة وليست لديه صلاحية
+            }
+
+            const choice = prompt(`خيارات الرسالة:\n1. حذف الرسالة من عند الكل (اكتب: delete)\n2. تعديل الرسالة وإرسالها من جديد (اكتب التعديل هنا)`);
+            if (choice === null) return;
+
+            if (choice.trim().toLowerCase() === 'delete') {
+                if (confirm('هل أنت متأكد من حذف هذه الرسالة من عند الكل؟')) {
+                    deleteMessageFromDB(msgId);
+                }
+            } else if (choice.trim() !== '') {
+                // تعديل الرسالة
+                const msg = state.messages.find(m => m.id === msgId);
+                if (msg) {
+                    msg.originalText = choice.trim();
+                    msg.isTranslated = isEnglishText(choice.trim());
+                    msg.translatedText = msg.isTranslated ? translateEnToArabicText(choice.trim()) : choice.trim();
+                    saveMessageToDB(msg);
+                }
+            }
+        }
+
         function renderChatMessages() {
             const box = document.getElementById('chatMessagesBox');
             if (!box || !state.currentUser || !activeChatTarget) return;
@@ -1842,6 +1801,12 @@
                 const bubble = document.createElement('div');
                 bubble.className = `chat-bubble ${isMyMessage ? 'my-msg' : 'other-msg'}`;
                 
+                // عند الضغط على الرسالة يظهر خيار الحذف أو التعديل إذا كانت تخصه
+                if (isMyMessage || state.currentUser.isAdmin) {
+                    bubble.setAttribute('title', 'اضغط لتعديل أو حذف هذه الرسالة');
+                    bubble.onclick = () => handleMessageClick(m.id, m.senderEmail, m.originalText);
+                }
+
                 let textDisplay = m.originalText;
                 let translateNotice = '';
 
@@ -1854,7 +1819,7 @@
                 if (m.fileData) {
                     const f = m.fileData;
                     if (f.type.startsWith('image/')) {
-                        fileHtml = `<a href="${f.data}" download="${f.name}" title="اضغط لتحميل الصورة"><img src="${f.data}" class="chat-media-preview"></a>`;
+                        fileHtml = `<a href="${f.data}" download="${f.name}" title="اضغط لتحميل الصورة أو الواجب"><img src="${f.data}" class="chat-media-preview"></a>`;
                     } else if (f.type.startsWith('video/')) {
                         fileHtml = `
                             <div style="margin-top:5px;">
@@ -2092,13 +2057,6 @@
                     } else {
                         studentStatusHtml = `<div style="margin-top: 8px; font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-info-circle"></i> سيتم تسجيل المشاهدة تلقائياً عند إنهاء الفيديو بالكامل.</div>`;
                     }
-
-                    studentStatusHtml += `
-                        <div class="homework-box">
-                            <label><i class="fa-solid fa-file-arrow-up"></i> تسليم الواجب (سكرين شوت أو تسجيل شاشة):</label>
-                            <input type="file" accept="image/*,video/*" id="hw_file_${v.id}" onchange="submitHomework('${v.id}', '${v.title.replace(/'/g, "")}')" style="font-size: 0.8rem; color: #fff;">
-                        </div>
-                    `;
                 }
 
                 card.innerHTML = `
@@ -2117,6 +2075,7 @@
             });
         }
 
+        // عند إنهاء مشاهدة جميع الفيديوهات المسموحة، يرسل النظام رسالة تلقائية "اعمل الواجب يا [اسم الطالب]" بصفتك المعلم
         function markVideoAsWatchedAutomatically(videoId) {
             if (!state.currentUser || state.currentUser.isAdmin) return;
             const userEmail = state.currentUser.email;
@@ -2127,6 +2086,37 @@
                 state.watchedVideos[userEmail].push(videoId);
                 localStorage.setItem('4a_watchedVideos', JSON.stringify(state.watchedVideos));
                 renderVideos();
+                checkAllVideosFinishedAndSendHomeworkMessage();
+            }
+        }
+
+        function checkAllVideosFinishedAndSendHomeworkMessage() {
+            if (!state.currentUser || state.currentUser.isAdmin) return;
+            const userEmail = state.currentUser.email;
+            const allowedIds = state.currentUser.allowedVideos || [];
+            if (allowedIds.length === 0) return;
+
+            const watched = state.watchedVideos[userEmail] || [];
+            const allFinished = allowedIds.every(id => watched.includes(id));
+
+            if (allFinished) {
+                const triggerId = `hw_auto_${userEmail}`;
+                const alreadySent = state.messages.some(m => m.id === triggerId);
+                if (!alreadySent) {
+                    const autoMsg = {
+                        id: triggerId,
+                        targetKey: userEmail,
+                        senderEmail: SUPER_ADMIN_EMAIL,
+                        senderName: "Amir Mohamed (Owner)",
+                        isAdminSender: true,
+                        originalText: `اعمل الواجب يا ${state.currentUser.name}`,
+                        translatedText: `اعمل الواجب يا ${state.currentUser.name}`,
+                        isTranslated: false,
+                        fileData: null,
+                        date: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+                    };
+                    saveMessageToDB(autoMsg);
+                }
             }
         }
 
@@ -2197,61 +2187,6 @@
                     <td>${c.studentEmail}</td>
                     <td><span style="color:var(--accent); font-weight:bold;">أنهى كورس ${c.courseName} بالكامل 🌟</span></td>
                     <td>${c.date}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function submitHomework(videoId, videoTitle) {
-            const input = document.getElementById(`hw_file_${videoId}`);
-            if (input.files && input.files[0] && state.currentUser) {
-                const file = input.files[0];
-                const isVideo = file.type.startsWith('video/');
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const hwObj = {
-                        id: Date.now().toString() + "_" + Math.random(),
-                        studentName: state.currentUser.name,
-                        studentEmail: state.currentUser.email,
-                        videoTitle: videoTitle,
-                        fileType: isVideo ? 'video' : 'image',
-                        fileSrc: e.target.result,
-                        date: new Date().toLocaleString('ar-EG')
-                    };
-                    saveHomeworkToDB(hwObj);
-                    alert(`تم إرسال ${isVideo ? 'تسجيل الشاشة' : 'سكرين شوت'} الواجب بنجاح! أحسنت 🌟`);
-                    input.value = '';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function renderHomeworksTable() {
-            const tbody = document.getElementById('homeworksTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            if (state.homeworks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">لا توجد واجبات مرفوعة حتى الآن.</td></tr>`;
-                return;
-            }
-
-            state.homeworks.forEach(hw => {
-                const tr = document.createElement('tr');
-                let mediaHtml = '';
-                
-                if (hw.fileType === 'video') {
-                    mediaHtml = `<video src="${hw.fileSrc}" controls class="hw-preview-media"></video>`;
-                } else {
-                    mediaHtml = `<img src="${hw.fileSrc}" class="hw-preview-media" onclick="window.open('${hw.fileSrc}')" style="cursor:pointer;" title="اضغط لتكبير الصورة">`;
-                }
-
-                tr.innerHTML = `
-                    <td>${hw.studentName}<br><small style="color:var(--text-muted)">${hw.studentEmail}</small></td>
-                    <td>${hw.videoTitle}</td>
-                    <td>${mediaHtml}</td>
-                    <td>${hw.date}</td>
                 `;
                 tbody.appendChild(tr);
             });
