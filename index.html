@@ -243,44 +243,6 @@
             overflow-y: auto;
         }
 
-        .software-links-bar {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .software-links-bar span {
-            color: var(--accent);
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
-
-        .software-btn {
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid var(--accent);
-            color: var(--text-main);
-            padding: 6px 14px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: 0.2s;
-        }
-
-        .software-btn:hover {
-            background: var(--accent);
-            color: #000;
-        }
-
         .folder-filter-bar {
             display: flex;
             gap: 10px;
@@ -439,6 +401,7 @@
             margin-bottom: 5px;
         }
 
+        /* تنسيق الشات الجديد */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -459,7 +422,7 @@
         }
 
         .chat-bubble {
-            max-width: 70%;
+            max-width: 75%;
             padding: 12px 16px;
             border-radius: 10px;
             font-size: 0.95rem;
@@ -501,9 +464,10 @@
             background-color: var(--bg-dark);
             border-top: 1px solid var(--border-color);
             gap: 10px;
+            align-items: center;
         }
 
-        .chat-input-area input {
+        .chat-input-area input[type="text"] {
             flex: 1;
             padding: 10px 15px;
             background: var(--card-bg);
@@ -512,14 +476,64 @@
             color: white;
         }
 
-        .chat-input-area button {
+        .chat-file-btn {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-file-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .chat-input-area button.send-btn {
             background-color: var(--accent);
             color: #000;
             border: none;
-            padding: 0 20px;
+            padding: 10px 20px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .chat-media-preview {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 6px;
+            margin-top: 5px;
+            display: block;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .chat-file-download-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--accent);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .chat-file-download-card:hover {
+            background: var(--accent);
+            color: #000;
         }
 
         .data-table {
@@ -685,11 +699,6 @@
         <div class="content">
             <div id="tabVideos">
                 <h2><i class="fa-solid fa-video"></i> <span data-i18n="libraryTitle">المكتبة التعليمية</span></h2>
-                
-                <div id="softwareBarContainer" class="software-links-bar hidden">
-                    <span><i class="fa-solid fa-laptop-code"></i> <span data-i18n="softwareAvailable">البرامج المتاحة لمستواك:</span></span>
-                    <div id="softwareLinksList" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
-                </div>
 
                 <div class="folder-filter-bar" id="folderFilterBar"></div>
                 <div class="video-grid" id="videoList"></div>
@@ -706,8 +715,10 @@
                 <div class="chat-container">
                     <div class="chat-messages" id="chatMessagesBox"></div>
                     <div class="chat-input-area">
+                        <input type="file" id="chatFileInput" class="hidden" onchange="sendChatFile(this)">
+                        <button class="chat-file-btn" onclick="document.getElementById('chatFileInput').click()" title="إرسال صورة، فيديو، أو ملف PowerPoint/PDF"><i class="fa-solid fa-paperclip"></i></button>
                         <input type="text" id="chatInputText" placeholder="اكتب رسالتك هنا..." onkeypress="handleChatKeyPress(event)">
-                        <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i> <span data-i18n="send">إرسال</span></button>
+                        <button class="send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i> <span data-i18n="send">إرسال</span></button>
                     </div>
                 </div>
             </div>
@@ -904,7 +915,6 @@
                 menuGroups: "إدارة المجموعات",
                 menuStudents: "إدارة المستخدمين",
                 libraryTitle: "المكتبة التعليمية",
-                softwareAvailable: "البرامج المتاحة لمستواك:",
                 chatTitle: "المحادثة المباشرة",
                 selectStudentChat: "اختر الطالب لمحادثته:",
                 send: "إرسال",
@@ -959,7 +969,6 @@
                 menuGroups: "Manage Groups",
                 menuStudents: "Manage Users",
                 libraryTitle: "Educational Library",
-                softwareAvailable: "Software available for your level:",
                 chatTitle: "Live Chat",
                 selectStudentChat: "Select Student to Chat:",
                 send: "Send",
@@ -1014,7 +1023,6 @@
                 menuGroups: "Gestionar Grupos",
                 menuStudents: "Gestionar Usuarios",
                 libraryTitle: "Biblioteca Educativa",
-                softwareAvailable: "Software disponible para tu nivel:",
                 chatTitle: "Chat en Vivo",
                 selectStudentChat: "Seleccionar Estudiante para Chatear:",
                 send: "Enviar",
@@ -1139,7 +1147,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 31);
+        const request = indexedDB.open("4ACodingSchoolDB", 33);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -1512,11 +1520,50 @@
                 originalText: text,
                 translatedText: translated,
                 isTranslated: isEng,
+                fileData: null,
                 date: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
             };
 
             saveMessageToDB(msgObj);
             input.value = '';
+        }
+
+        function sendChatFile(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+
+            if (state.currentUser && !state.currentUser.isAdmin && !activeChatEmail) {
+                activeChatEmail = state.currentUser.email;
+            }
+
+            if (state.currentUser && state.currentUser.isAdmin && !activeChatEmail) {
+                alert('يرجى اختيار طالب أولاً لمحادثته.');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const msgObj = {
+                    id: Date.now().toString() + "_" + Math.random(),
+                    studentEmail: state.currentUser.isAdmin ? activeChatEmail : state.currentUser.email,
+                    sender: state.currentUser.isAdmin ? 'admin' : 'student',
+                    senderName: state.currentUser.name,
+                    originalText: `ملف مرفق: ${file.name}`,
+                    translatedText: `ملف مرفق: ${file.name}`,
+                    isTranslated: false,
+                    fileData: {
+                        name: file.name,
+                        type: file.type,
+                        data: e.target.result
+                    },
+                    date: new Date().toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})
+                };
+
+                saveMessageToDB(msgObj);
+                input.value = '';
+            };
+            reader.readAsDataURL(file);
         }
 
         function handleChatKeyPress(e) {
@@ -1537,7 +1584,7 @@
             const chatMessages = state.messages.filter(m => m.studentEmail === targetEmail);
 
             if (chatMessages.length === 0) {
-                box.innerHTML = '<p style="color:var(--text-muted); text-align:center; margin-top:20px;">لا توجد رسائل سابقة. ابدأ المحادثة الآن!</p>';
+                box.innerHTML = '<p style="color:var(--text-muted); text-align:center; margin-top:20px;">لا توجد رسائل سابقة. ابدأ المحادثة أو أرسل الملفات الآن!</p>';
                 return;
             }
 
@@ -1553,9 +1600,27 @@
                     translateNotice = `<span class="translated-tag">(مترجم للعربية تلقائياً من الإنجليزية: "${m.originalText}")</span>`;
                 }
 
+                let fileHtml = '';
+                if (m.fileData) {
+                    const f = m.fileData;
+                    if (f.type.startsWith('image/')) {
+                        fileHtml = `<a href="${f.data}" download="${f.name}" title="اضغط لتحميل الصورة"><img src="${f.data}" class="chat-media-preview"></a>`;
+                    } else if (f.type.startsWith('video/')) {
+                        fileHtml = `
+                            <div style="margin-top:5px;">
+                                <video src="${f.data}" controls style="max-width:220px; max-height:150px; border-radius:6px; display:block;"></video>
+                                <a href="${f.data}" download="${f.name}" class="chat-file-download-card"><i class="fa-solid fa-download"></i> تحميل الفيديو (${f.name})</a>
+                            </div>
+                        `;
+                    } else {
+                        fileHtml = `<a href="${f.data}" download="${f.name}" class="chat-file-download-card"><i class="fa-solid fa-file-arrow-down"></i> تحميل الملف: ${f.name}</a>`;
+                    }
+                }
+
                 bubble.innerHTML = `
                     <span class="chat-sender">${m.senderName} - <small>${m.date}</small></span>
-                    <div>${textDisplay}</div>
+                    <div>${m.fileData ? '' : textDisplay}</div>
+                    ${fileHtml}
                     ${translateNotice}
                 `;
                 box.appendChild(bubble);
@@ -1721,7 +1786,7 @@
                 availableVideos = availableVideos.filter(v => (v.folder || "عام") === currentFolderFilter);
             }
 
-            checkStudentProgressAndSoftware();
+            checkStudentCompletions();
 
             if (availableVideos.length === 0) {
                 container.innerHTML = '<p style="color: var(--text-muted);">لا توجد فيديوهات متاحة في هذا القسم حالياً.</p>';
@@ -1816,11 +1881,8 @@
             }
         }
 
-        function checkStudentProgressAndSoftware() {
-            if (!state.currentUser || state.currentUser.isAdmin) {
-                document.getElementById('softwareBarContainer').classList.add('hidden');
-                return;
-            }
+        function checkStudentCompletions() {
+            if (!state.currentUser || state.currentUser.isAdmin) return;
 
             const userEmail = state.currentUser.email;
             const watched = state.watchedVideos[userEmail] || [];
@@ -1840,33 +1902,6 @@
                     if (watched.includes(v.id)) pythonCount++;
                 }
             });
-
-            const softwareContainer = document.getElementById('softwareBarContainer');
-            const linksList = document.getElementById('softwareLinksList');
-            softwareContainer.classList.remove('hidden');
-            linksList.innerHTML = '';
-
-            let hasSoftware = false;
-
-            if (blocksCount > 0 && blocksCount <= 6) {
-                linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
-                hasSoftware = true;
-            } else if (blocksCount >= 7) {
-                linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
-                linksList.innerHTML += `<a href="https://appinventor.mit.edu/" target="_blank" class="software-btn"><i class="fa-solid fa-mobile-screen"></i> App Inventor</a>`;
-                hasSoftware = true;
-            }
-
-            if (pythonCount > 0 && pythonCount <= 10) {
-                linksList.innerHTML += `<a href="https://pictoblocks.app/" target="_blank" class="software-btn"><i class="fa-solid fa-cube"></i> PictoBlocks</a>`;
-                linksList.innerHTML += `<a href="https://appinventor.mit.edu/" target="_blank" class="software-btn"><i class="fa-solid fa-mobile-screen"></i> App Inventor</a>`;
-                linksList.innerHTML += `<a href="https://code.visualstudio.com/" target="_blank" class="software-btn"><i class="fa-solid fa-code"></i> VS Code</a>`;
-                hasSoftware = true;
-            }
-
-            if (!hasSoftware) {
-                linksList.innerHTML = `<span style="font-size:0.85rem; color:var(--text-muted);">ابدأ مشاهدة السيشنات للنهاية لتظهر لك البرامج والأدوات المخصصة.</span>`;
-            }
 
             if (blocksCount >= 12 && totalBlocksVideos > 0 && blocksCount >= totalBlocksVideos) {
                 triggerCompletionNotice("Blocks");
@@ -1998,7 +2033,6 @@
             });
         }
 
-        // فتح نافذة تعديل صلاحيات الفيديوهات للطالب
         function openEditStudentModal(email) {
             const student = state.users.find(u => u.email === email);
             if (!student) return;
@@ -2044,7 +2078,7 @@
 
             student.allowedVideos = newAllowedVideos;
             saveUsersData();
-            alert('تم تحديث صلاحيات الفيديوهات للطالب بنجاح! سيتمكن من رؤية الفيديوهات المضافة حديثاً فوراً.');
+            alert('تم تحديث صلاحيات الفيديوهات للطالب بنجاح!');
             closeEditModal();
             renderUsersTable();
         }
@@ -2180,7 +2214,7 @@
                     editBtn = `<button onclick="openEditStudentModal('${u.email}')" style="background:var(--accent); color:#000; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-weight:bold; margin-left:5px;">تعديل الصلاحيات</button>`;
                 }
 
-                tr.innerHTML = `
+                    tr.innerHTML = `
                     <td>${u.name}</td>
                     <td>${u.email}</td>
                     <td>${u.role === 'admin' ? '<span style="color:var(--accent);">مشرف مساعد</span>' : 'طالب'}</td>
