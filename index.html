@@ -112,14 +112,105 @@
             transition: 0.2s;
         }
 
-        .btn-install-header:hover {
-            background-color: #059669;
-        }
-
         .user-info {
             display: flex;
             align-items: center;
             gap: 12px;
+            position: relative;
+        }
+
+        /* صندوق البريد والإشعارات الذكي */
+        .inbox-wrapper {
+            position: relative;
+        }
+
+        .inbox-btn {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            position: relative;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .inbox-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .inbox-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            border: 2px solid var(--card-bg);
+        }
+
+        .inbox-dropdown {
+            position: absolute;
+            top: 45px;
+            left: 0;
+            width: 320px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            max-height: 380px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inbox-header {
+            padding: 12px 15px;
+            background: var(--bg-dark);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .inbox-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .inbox-item:hover {
+            background-color: rgba(56, 189, 248, 0.08);
+        }
+
+        .inbox-item-sender {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .inbox-item-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .btn-edit-name {
@@ -256,14 +347,6 @@
             gap: 10px;
         }
 
-        .storage-info-text {
-            font-size: 0.95rem;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .folder-filter-bar {
             display: flex;
             gap: 10px;
@@ -397,9 +480,6 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .lesson-img-preview:hover {
-            opacity: 0.8;
-        }
 
         .homework-box {
             background: rgba(255,255,255,0.03);
@@ -416,7 +496,7 @@
             margin-bottom: 5px;
         }
 
-        /* تنسيق الشات والمجموعات */
+        /* المحادثات والجروبات */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -662,6 +742,23 @@
         </div>
 
         <div class="user-info hidden" id="headerUserInfo">
+            <!-- صندوق البريد والإشعارات بجانب الاسم -->
+            <div class="inbox-wrapper">
+                <button class="inbox-btn" onclick="toggleInboxDropdown()" title="صندوق الرسائل الواردة">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span class="inbox-badge hidden" id="inboxBadgeCount">0</span>
+                </button>
+                <div class="inbox-dropdown hidden" id="inboxDropdownList">
+                    <div class="inbox-header">
+                        <span><i class="fa-solid fa-inbox"></i> صندوق البريد والرسائل</span>
+                        <small id="inboxCountSubtitle" style="color:var(--text-muted); font-size:0.75rem;"></small>
+                    </div>
+                    <div id="inboxMessagesContainer">
+                        <p style="padding:15px; text-align:center; color:var(--text-muted); font-size:0.85rem;">لا توجد رسائل واردة بعد.</p>
+                    </div>
+                </div>
+            </div>
+
             <span id="userNameDisplay"></span>
             <button class="btn-edit-name" id="editNameBtn" onclick="promptChangeName()"><i class="fa-solid fa-pen"></i> <span data-i18n="editName">تغيير الاسم</span></button>
             <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="logout">خروج</span></button>
@@ -692,7 +789,7 @@
                     <i class="fa-solid fa-play"></i> <span data-i18n="menuVideos">الدروس والتطبيقات</span>
                 </li>
                 <li id="menuChat" class="permission-check" data-perm="chat" onclick="switchTab('chat')">
-                    <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle" data-i18n="menuChat">المحادثات والمجموعات</span>
+                    <i class="fa-solid fa-comments"></i> <span id="chatMenuTitle" data-i18n="menuChat">المحادثات والجروبات</span>
                 </li>
                 <li id="menuAddVideo" class="admin-only hidden" onclick="switchTab('addVideo')">
                     <i class="fa-solid fa-folder-plus"></i> <span data-i18n="menuAddVideo">رفع مجلد فيديوهات</span>
@@ -707,7 +804,7 @@
                     <i class="fa-solid fa-trophy"></i> <span data-i18n="menuCompletions">إشعارات إنهاء الكورسات</span>
                 </li>
                 <li id="menuGroups" class="admin-only hidden" onclick="switchTab('groups')">
-                    <i class="fa-solid fa-layer-group"></i> <span data-i18n="menuGroups">إدارة المجموعات</span>
+                    <i class="fa-solid fa-layer-group"></i> <span data-i18n="menuGroups">إدارة المجموعات والجروبات</span>
                 </li>
                 <li id="menuStudents" class="admin-only hidden" onclick="switchTab('students')">
                     <i class="fa-solid fa-users"></i> <span data-i18n="menuStudents">إدارة المستخدمين</span>
@@ -717,12 +814,13 @@
 
         <div class="content">
             <div id="tabVideos">
-                <div class="storage-banner">
+                <!-- بانر مساحة التخزين - يظهر للمالك/المدير فقط -->
+                <div class="storage-banner hidden" id="ownerStorageBanner">
                     <div class="storage-info-text">
                         <i class="fa-solid fa-database" style="font-size: 1.2rem; color: var(--accent);"></i>
-                        <span>سعة التخزين: <strong>مفتوحة وتدعم مساحة ضخمة (تخزين سحابي محلي ممتد)</strong></span>
+                        <span>سعة التخزين الخاصة بالمنصة: <strong>مساحة سحابية محددة بـ 1 تيرابايت (1TB Cloud Extended Storage)</strong></span>
                     </div>
-                    <span id="storageUsageBadge" style="font-size: 0.85rem; color: var(--success); font-weight: bold;">متصل ومستقر 🟢</span>
+                    <span id="storageUsageBadge" style="font-size: 0.85rem; color: var(--success); font-weight: bold;">مفعل ومستقر 🟢</span>
                 </div>
 
                 <h2><i class="fa-solid fa-video"></i> <span data-i18n="libraryTitle">المكتبة التعليمية</span></h2>
@@ -732,11 +830,11 @@
             </div>
 
             <div id="tabChat" class="hidden">
-                <h2 id="chatHeaderTitle"><i class="fa-solid fa-comments"></i> <span data-i18n="chatTitle">المحادثات والمجموعات المشتركة</span></h2>
+                <h2 id="chatHeaderTitle"><i class="fa-solid fa-comments"></i> <span data-i18n="chatTitle">المحادثات والجروبات المشتركة</span></h2>
                 
                 <div style="margin-bottom: 15px; display:flex; gap:15px; align-items:center; flex-wrap:wrap;">
                     <div>
-                        <label style="color:var(--text-muted); font-size:0.9rem; display:block; margin-bottom:5px;">اختر المحادثة أو الكروب:</label>
+                        <label style="color:var(--text-muted); font-size:0.9rem; display:block; margin-bottom:5px;">اختر المحادثة أو الجروب:</label>
                         <select id="chatTargetSelect" onchange="changeActiveChatTarget()" style="min-width: 250px; padding: 10px; background:var(--card-bg); color:white; border:1px solid var(--border-color); border-radius:6px;"></select>
                     </div>
                 </div>
@@ -821,22 +919,22 @@
             </div>
 
             <div id="tabGroups" class="hidden">
-                <h2><i class="fa-solid fa-layer-group"></i> <span data-i18n="groupsTitle">إنشاء وإدارة مجموعات الطلاب</span></h2>
+                <h2><i class="fa-solid fa-layer-group"></i> <span data-i18n="groupsTitle">إنشاء وإدارة الجروبات والطلاب</span></h2>
                 <div style="max-width: 600px; margin-top: 20px; background:var(--card-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color);">
                     <form onsubmit="handleCreateGroup(event)">
                         <div class="form-group">
-                            <label data-i18n="groupNameLabel">اسم المجموعة المشتركة</label>
-                            <input type="text" id="groupNameInput" required placeholder="مثال: مجموعة المتميزين في بايثون">
+                            <label data-i18n="groupNameLabel">اسم الجروب المشترك</label>
+                            <input type="text" id="groupNameInput" required placeholder="مثال: جروب المتميزين في بايثون">
                         </div>
                         <div class="form-group">
-                            <label data-i18n="selectStudentsForGroup">اختر الطلاب للانضمام لهذه المجموعة:</label>
+                            <label data-i18n="selectStudentsForGroup">اختر الطلاب للانضمام لهذا الجروب:</label>
                             <div class="checkbox-group" id="groupStudentsCheckboxes"></div>
                         </div>
-                        <button type="submit" class="btn-primary" data-i18n="saveGroupBtn">حفظ وتشكيل المجموعة</button>
+                        <button type="submit" class="btn-primary" data-i18n="saveGroupBtn">حفظ وتشكيل الجروب</button>
                     </form>
                 </div>
 
-                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-rectangle"></i> <span data-i18n="currentGroups">المجموعات الحالية</span></h2>
+                <h2 style="margin-top: 40px;"><i class="fa-solid fa-users-rectangle"></i> <span data-i18n="currentGroups">الجروبات الحالية</span></h2>
                 <div id="groupsListContainer" style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;"></div>
             </div>
 
@@ -936,15 +1034,15 @@
                 passLabel: "كلمة المرور",
                 loginBtn: "دخول للمنصة",
                 menuVideos: "الدروس والتطبيقات",
-                menuChat: "المحادثات والمجموعات",
+                menuChat: "المحادثات والجروبات",
                 menuAddVideo: "رفع مجلد فيديوهات",
                 menuAddAttachments: "إضافة ملحقات للسيشنات",
                 menuHomeworks: "متابعة واجبات الطلاب",
                 menuCompletions: "إشعارات إنهاء الكورسات",
-                menuGroups: "إدارة المجموعات",
+                menuGroups: "إدارة المجموعات والجروبات",
                 menuStudents: "إدارة المستخدمين",
                 libraryTitle: "المكتبة التعليمية",
-                chatTitle: "المحادثات والمجموعات المشتركة",
+                chatTitle: "المحادثات والجروبات المشتركة",
                 send: "إرسال",
                 uploadFolderTitle: "رفع مجلد فيديوهات كامل (Upload All Videos)",
                 folderNameLabel: "اسم المجلد أو القسم (Blocks أو Python)",
@@ -963,11 +1061,11 @@
                 completionsTitle: "إشعارات إنهاء الكورسات (Blocks / Python)",
                 thEmail: "البريد الإلكتروني",
                 thCourseFinished: "الكورس المنتهي",
-                groupsTitle: "إنشاء وإدارة مجموعات الطلاب",
-                groupNameLabel: "اسم المجموعة",
-                selectStudentsForGroup: "اختر الطلاب للانضمام لهذه المجموعة:",
-                saveGroupBtn: "حفظ وتشكيل المجموعة",
-                currentGroups: "المجموعات الحالية",
+                groupsTitle: "إنشاء وإدارة الجروبات والطلاب",
+                groupNameLabel: "اسم الجروب",
+                selectStudentsForGroup: "اختر الطلاب للانضمام لهذا الجروب:",
+                saveGroupBtn: "حفظ وتشكيل الجروب",
+                currentGroups: "الجروبات الحالية",
                 addUserTitle: "إضافة مستخدم جديد",
                 nameLabel: "الاسم",
                 roleLabel: "نوع الحساب:",
@@ -1072,7 +1170,7 @@
                 groupsTitle: "Crear y Gestionar Grupos de Estudiantes",
                 groupNameLabel: "Nombre del Grupo",
                 selectStudentsForGroup: "Seleccionar Estudiantes para el Grupo:",
-                saveGroupBtn: "Creار Grupo",
+                saveGroupBtn: "Crear Grupo",
                 currentGroups: "Grupos Actuales",
                 addUserTitle: "Agregar Nuevo Usuario",
                 nameLabel: "Nombre",
@@ -1173,7 +1271,7 @@
             watchedVideos: JSON.parse(localStorage.getItem('4a_watchedVideos')) || {}
         };
 
-        const request = indexedDB.open("4ACodingSchoolDB", 36);
+        const request = indexedDB.open("4ACodingSchoolDB", 38);
         request.onupgradeneeded = function(e) {
             db = e.target.result;
             if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id" });
@@ -1187,19 +1285,7 @@
             loadHomeworksFromDB();
             loadMessagesFromDB();
             loadCompletionsFromDB();
-            checkStorageQuota();
         };
-
-        async function checkStorageQuota() {
-            if (navigator.storage && navigator.storage.estimate) {
-                const estimate = await navigator.storage.estimate();
-                const quotaMB = (estimate.quota / (1024 * 1024 * 1024)).toFixed(2);
-                const badge = document.getElementById('storageUsageBadge');
-                if (badge) {
-                    badge.textContent = `مساحة المتصفح المتاحة: ~${quotaMB} جيجابايت 🟢`;
-                }
-            }
-        }
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -1292,6 +1378,7 @@
             getAll.onsuccess = function() {
                 state.messages = getAll.result || [];
                 renderChatMessages();
+                renderInboxMessages();
             };
         }
 
@@ -1385,6 +1472,16 @@
                 document.getElementById('headerUserInfo').classList.remove('hidden');
                 document.getElementById('userNameDisplay').textContent = state.currentUser.name;
 
+                // إظهار بانر مساحة التخزين للمالك فقط
+                const storageBanner = document.getElementById('ownerStorageBanner');
+                if (storageBanner) {
+                    if (state.currentUser.isSuperAdmin) {
+                        storageBanner.classList.remove('hidden');
+                    } else {
+                        storageBanner.classList.add('hidden');
+                    }
+                }
+
                 applyUserPermissions();
 
                 loadVideosFromDB();
@@ -1437,6 +1534,99 @@
             }
         }
 
+        function toggleInboxDropdown() {
+            const drop = document.getElementById('inboxDropdownList');
+            if (drop) {
+                drop.classList.toggle('hidden');
+                if (!drop.classList.contains('hidden')) {
+                    renderInboxMessages();
+                }
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrapper = document.querySelector('.inbox-wrapper');
+            const drop = document.getElementById('inboxDropdownList');
+            if (wrapper && drop && !wrapper.contains(e.target)) {
+                drop.classList.add('hidden');
+            }
+        });
+
+        function renderInboxMessages() {
+            const container = document.getElementById('inboxMessagesContainer');
+            const badge = document.getElementById('inboxBadgeCount');
+            const countSub = document.getElementById('inboxCountSubtitle');
+            if (!container || !state.currentUser) return;
+
+            let myInbox = [];
+
+            if (state.currentUser.isAdmin) {
+                myInbox = state.messages.filter(m => m.senderEmail !== state.currentUser.email);
+            } else {
+                const myGroupKeys = state.groups
+                    .map((g, idx) => ({ key: `group_${idx}`, group: g }))
+                    .filter(item => item.group.students && item.group.students.includes(state.currentUser.email))
+                    .map(item => item.key);
+
+                myInbox = state.messages.filter(m => 
+                    m.senderEmail !== state.currentUser.email && 
+                    (m.targetKey === state.currentUser.email || myGroupKeys.includes(m.targetKey))
+                );
+            }
+
+            myInbox.sort((a, b) => b.id.split('_')[0] - a.id.split('_')[0]);
+
+            if (myInbox.length > 0) {
+                badge.classList.remove('hidden');
+                badge.textContent = myInbox.length;
+                if (countSub) countSub.textContent = `${myInbox.length} رسالة جديدة`;
+            } else {
+                badge.classList.add('hidden');
+                if (countSub) countSub.textContent = `لا توجد رسائل جديدة`;
+            }
+
+            if (myInbox.length === 0) {
+                container.innerHTML = '<p style="padding:15px; text-align:center; color:var(--text-muted); font-size:0.85rem;">لا توجد رسائل واردة بعد.</p>';
+                return;
+            }
+
+            let html = '';
+            myInbox.slice(0, 15).forEach(msg => {
+                let textPreview = msg.originalText;
+                if (msg.fileData) textPreview = `📎 ملف مرفق: ${msg.fileData.name}`;
+
+                let groupLabel = '';
+                if (msg.targetKey.startsWith('group_')) {
+                    const gIdx = parseInt(msg.targetKey.replace('group_', ''));
+                    const grp = state.groups[gIdx];
+                    if (grp) groupLabel = `<span style="color:var(--accent); font-size:0.75rem;"> [👥 ${grp.name}]</span>`;
+                }
+
+                html += `
+                    <div class="inbox-item" onclick="jumpToChatMessage('${msg.targetKey}')">
+                        <div class="inbox-item-sender">
+                            <span>${msg.senderName}${groupLabel}</span>
+                            <small style="color:var(--text-muted); font-weight:normal;">${msg.date}</small>
+                        </div>
+                        <div class="inbox-item-text">${textPreview}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function jumpToChatMessage(targetKey) {
+            document.getElementById('inboxDropdownList').classList.add('hidden');
+            switchTab('chat');
+            
+            const select = document.getElementById('chatTargetSelect');
+            if (select) {
+                activeChatTarget = targetKey;
+                select.value = targetKey;
+                renderChatMessages();
+            }
+        }
+
         function initChatTargetsDropdown() {
             const select = document.getElementById('chatTargetSelect');
             if (!select || !state.currentUser) return;
@@ -1447,11 +1637,11 @@
                 
                 if (state.groups.length > 0) {
                     let groupOptGroup = document.createElement('optgroup');
-                    groupOptGroup.label = "المجموعات المشتركة (Groups)";
+                    groupOptGroup.label = "الجروبات المشتركة (Groups)";
                     state.groups.forEach((g, idx) => {
                         let opt = document.createElement('option');
                         opt.value = `group_${idx}`;
-                        opt.textContent = `👥 كروب: ${g.name}`;
+                        opt.textContent = `👥 جروب: ${g.name}`;
                         groupOptGroup.appendChild(opt);
                         hasOpt = true;
                     });
@@ -1473,7 +1663,7 @@
                 }
 
                 if (!hasOpt) {
-                    select.innerHTML = '<option value="">لا توجد طلاب أو مجموعات بعد</option>';
+                    select.innerHTML = '<option value="">لا توجد طلاب أو جروبات بعد</option>';
                     activeChatTarget = null;
                 } else {
                     if (!activeChatTarget || !select.querySelector(`option[value="${activeChatTarget}"]`)) {
@@ -1482,24 +1672,21 @@
                     select.value = activeChatTarget;
                 }
             } else {
-                let hasOpt = false;
-                
                 let myOpt = document.createElement('option');
                 myOpt.value = state.currentUser.email;
                 myOpt.textContent = `💬 محادثتي الخاصة مع المعلم`;
                 select.appendChild(myOpt);
-                activeChatTarget = state.currentUser.email;
-                hasOpt = true;
+                if (!activeChatTarget) activeChatTarget = state.currentUser.email;
 
                 const myGroups = state.groups.filter(g => g.students && g.students.includes(state.currentUser.email));
                 if (myGroups.length > 0) {
                     let groupOptGroup = document.createElement('optgroup');
-                    groupOptGroup.label = "مجموعاتي المشتركة";
+                    groupOptGroup.label = "الجروبات المشتركة";
                     state.groups.forEach((g, idx) => {
                         if (g.students && g.students.includes(state.currentUser.email)) {
                             let opt = document.createElement('option');
                             opt.value = `group_${idx}`;
-                            opt.textContent = `👥 كروب: ${g.name}`;
+                            opt.textContent = `👥 جروب: ${g.name}`;
                             groupOptGroup.appendChild(opt);
                         }
                     });
@@ -2151,7 +2338,7 @@
             container.innerHTML = '';
             const students = state.users.filter(u => u.role === 'student');
             if (students.length === 0) {
-                container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">لا توجد طلاب مسجلين لإضافتهم في مجموعات.</span>';
+                container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">لا توجد طلاب مسجلين لإضافتهم في جروبات.</span>';
             } else {
                 students.forEach(s => {
                     const item = document.createElement('label');
@@ -2165,7 +2352,7 @@
             if (!listContainer) return;
             listContainer.innerHTML = '';
             if (state.groups.length === 0) {
-                listContainer.innerHTML = '<p style="color:var(--text-muted);">لم يتم إنشاء أي مجموعات حتى الآن.</p>';
+                listContainer.innerHTML = '<p style="color:var(--text-muted);">لم يتم إنشاء أي جروبات حتى الآن.</p>';
                 return;
             }
 
@@ -2175,14 +2362,14 @@
                 let studentsNames = g.students.map(email => {
                     let st = state.users.find(u => u.email === email);
                     return st ? st.name : email;
-                }).join(', ') || 'لا توجد طلاب في هذه المجموعة';
+                }).join(', ') || 'لا توجد طلاب في هذا الجروب';
 
                 card.innerHTML = `
                     <div>
                         <h3 style="color:var(--accent); font-size:1.1rem;"><i class="fa-solid fa-users"></i> ${g.name}</h3>
                         <p style="color:var(--text-muted); font-size:0.9rem; margin-top:5px;"><strong>الأعضاء:</strong> ${studentsNames}</p>
                     </div>
-                    <button onclick="deleteGroup(${idx})" style="background:var(--danger); color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.85rem;">حذف المجموعة</button>
+                    <button onclick="deleteGroup(${idx})" style="background:var(--danger); color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.85rem;">حذف الجروب</button>
                 `;
                 listContainer.appendChild(card);
             });
@@ -2197,7 +2384,7 @@
             });
 
             if (!groupName) {
-                alert('يرجى كتابة اسم المجموعة.');
+                alert('يرجى كتابة اسم الجروب.');
                 return;
             }
 
@@ -2206,14 +2393,14 @@
                 students: selectedStudents
             });
             saveGroupsData();
-            alert('تم إنشاء وتشكيل المجموعة المشتركة بنجاح!');
+            alert('تم إنشاء وتشكيل الجروب المشترك بنجاح!');
             document.getElementById('groupNameInput').value = '';
             renderGroupsManagement();
             initChatTargetsDropdown();
         }
 
         function deleteGroup(index) {
-            if (confirm('هل أنت متأكد من حذف هذه المجموعة؟')) {
+            if (confirm('هل أنت متأكد من حذف هذا الجروب؟')) {
                 state.groups.splice(index, 1);
                 saveGroupsData();
                 renderGroupsManagement();
@@ -2268,7 +2455,7 @@
         }
 
         function renderUsersTable() {
-            const tbody = document.getElementById('usersTableBoard') || document.getElementById('usersTableBody');
+            const tbody = document.getElementById('usersTableBody');
             if (!tbody) return;
             tbody.innerHTML = '';
             state.users.forEach((u, index) => {
